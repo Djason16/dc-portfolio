@@ -31,3 +31,9 @@ env/
 .env
 .env.*
 !.env.example
+
+# Qualif (start.bat then Q): ready to upload, never in Git
+/qualif/
+
+# WebAssembly of MediaPipe copied from node_modules by frontend/scripts/mediapipe.mjs (npm run dev / build)
+/frontend/public/mediapipe/wasm/

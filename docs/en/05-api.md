@@ -14,13 +14,13 @@ The API runs in the same Nuxt server as the site, under `/api`. It is organized 
 { "success": false, "error": "message", "type": "NOT_FOUND" }   // with the right HTTP status (400, 401, 404, 429, 500...)
 ```
 
-On the site, every call goes through `utils/api.js` (`api.get('/clients')`, `api.post(...)`...).
+On the site, every call goes through `utils/api.ts` (`api.get('/clients')`, `api.post(...)`...).
 It never throws and always resolves to this format.
 Error messages shown to the visitor are translation keys (e.g. `invalidCredentials`).
 
 ## 02 — Adding a route
 
-Create `server/controllers/ProductsController.js`. Its methods become routes automatically
+Create `server/controllers/ProductsController.ts`. Its methods become routes automatically
 (restart `npm run dev` when the file is new):
 
 | Method | Route |
@@ -51,17 +51,17 @@ export default class ProductsController extends Controller {
 }
 ```
 
-Helpers in `server/helpers/` are imported automatically everywhere in `server/`.
+Helpers in `server/utils/` (base of DC Scaffold) and `server/helpers/` (those of the site) are imported automatically everywhere in `server/`.
 
 ## 03 — Database
 
-MySQL through `mysql2` (`server/helpers/DatabaseHelper.js`), with the `DB_*` values of the `.env` file ([Configuration](02-configuration.md)).
+MySQL through `mysql2` (`server/utils/DatabaseHelper.ts`), with the `DB_*` values of the `.env` file ([Configuration](02-configuration.md)).
 Locally it runs in Docker (`docker-compose.yml`, started by `start.bat` → `D`); online it is the MySQL database of Infomaniak,
 separate from the files of the site: a new deployment never touches it.
 
 - **See and edit the data**: phpMyAdmin, http://localhost:8081 locally, from the Infomaniak Manager online
-- **Tables**: `server/helpers/DatabaseSchema.js` (`CREATE TABLE IF NOT EXISTS`, safe on an existing database)
-- **Default rows and admin account**: `server/plugins/init-database.js`, run on each start
+- **Tables**: `server/helpers/DatabaseSchema.ts` (`CREATE TABLE IF NOT EXISTS`, safe on an existing database)
+- **Default rows and admin account**: `server/plugins/init-database.ts`, run on each start
 - **Images of the projects**: stored in the `dc_uploads` table (not as files), served by `/api/upload/images/{name}`. The admin sends them in WebP (1920 px at most) with a 640 px thumbnail for the grid of the home page (`thumb-{name}`, deleted with the photo); a photo sent before the thumbnails is shown in full
 - **Changing an existing table** needs its own `ALTER TABLE`: never drop or recreate a table that holds data
 - **Backups**: export from phpMyAdmin; online, Infomaniak also keeps automatic backups
@@ -81,15 +81,20 @@ separate from the files of the site: a new deployment never touches it.
 | Projects | 🔓 `GET /api/projects`, `POST /api/projects` (multipart), `PUT /api/projects/{id}`, `POST /api/projects/{id}/image`, `DELETE /api/projects/{id}` |
 | Skills | 🔓 `GET /api/skills`, `POST /api/skills`, `PUT /api/skills/{id}`, `DELETE /api/skills/{id}` |
 | Versions | 🔓 `GET /api/versions` (`{ versions: { dc_skills: 4, ... } }`: the tables of the public pages for a visitor, every table for the admin) |
-| Translation | `POST /api/translate` (`{ text, from: 'fr', to: ['en'] }`, MyMemory: `server/helpers/TranslateHelper.js`) |
+| Translation | `POST /api/translate` (`{ text, from: 'fr', to: ['en'] }`, MyMemory: `server/helpers/TranslateHelper.ts`) |
 | Calendar | 🔓 `GET /api/calendar`, `PUT` / `PATCH /api/calendar/{id}`, `POST /api/calendar/send-agenda` |
 | Unavailability | 🔓 `GET /api/unavailability`, `POST /api/unavailability`, `PUT /api/unavailability/{id}`, `DELETE /api/unavailability/{id}` |
 | Availability | 🔓 `GET /api/availability`, `PUT /api/availability/toggle` |
 | Bank | `GET /api/bank` |
 | Environment | `GET /api/env`, `PUT /api/env` |
-| My info | 🔓 `GET /api/settings`, `PUT /api/settings`, `POST /api/settings/photo`, `DELETE /api/settings/photo` |
+| My info | 🔓 `GET /api/settings` (public: `age` instead of the birth date, no `numbering`; the admin gets both), `PUT /api/settings`, `POST /api/settings/photo`, `DELETE /api/settings/photo` |
 | Quotes & invoices | `GET /api/documents`, `POST /api/documents`, `PUT /api/documents/{id}`, `DELETE /api/documents/{id}` (draft), `POST /api/documents/{id}/finalize`, `POST /api/documents/{id}/status`, `POST /api/documents/{id}/duplicate`, `POST /api/documents/{id}/invoice`, `POST /api/documents/{id}/payments`, `POST /api/documents/{id}/pay-link`, `POST /api/documents/{id}/autopay-stop`, `DELETE /api/documents/{id}/payments/{paymentId}` |
 | Withdrawal | `POST /api/withdrawals` (public, 5 per hour and per address), `GET /api/withdrawals` |
+| Bookings | 🔓 `GET /api/bookings/slots?type=&from=&to=` (free starts in UTC), 🔓 `POST /api/bookings` (`{ typeId, start, name, email, phone, message, language, timezone }`, 5 per hour and per address), 🔓 `GET` / `POST /api/bookings/cancel/{token}`, `GET /api/bookings`, `POST /api/bookings/{id}/cancel` |
+| Video room | 🔓 `GET /api/rooms/{token}` (the appointment, the state of the room, the ICE servers while it is open), 🔓 `POST /api/rooms/{token}/join` (`{ peer }`), 🔓 `GET /api/rooms/{token}/signals?peer=&after=`, 🔓 `POST /api/rooms/{token}/signals` (`{ peer, kind, payload, target }`, `kind`: `offer` (host), `answer` (visitor), `candidates`, `leave`); the token of the link tells the side; 300 requests per minute and per address, 20 wrong tokens in 10 min lock the address for 15 min |
+| Personal video room | 🔓 `GET /api/lounge` (open, host there, in a call, first name), 🔓 `POST /api/lounge/knocks` (`{ name }` → `{ token }`; 5 requests per 10 min and 2 waiting per address, 403 when closed), 🔓 `GET /api/lounge/knocks/{token}` (status: `waiting`, `accepted` with the ICE servers, `refused`, `cancelled`, `expired`, `closed`, `ended`), 🔓 `POST /api/lounge/knocks/{token}/cancel`, 🔓 `POST /api/lounge/knocks/{token}/end`, `GET /api/lounge/host` (the host is there, the requests, the call running), `POST /api/lounge/knocks/{token}/accept` (409 when a call is already running), `POST /api/lounge/knocks/{token}/refuse`, `PUT /api/lounge/open` (`{ open }`); signaling like the booking room: 🔓 `POST /api/lounge/calls/{token}/{host\|guest}/join`, 🔓 `GET\|POST /api/lounge/calls/{token}/{host\|guest}/signals`, only for an accepted request, the `host` side with the admin session |
+| Kinds of appointment | 🔓 `GET /api/booking-types` (the active ones and the rules of the page), `GET /api/booking-types/all`, `POST /api/booking-types`, `PUT /api/booking-types/{id}`, `DELETE /api/booking-types/{id}` |
+| Booking rules | `GET /api/booking-settings`, `PUT /api/booking-settings` (`{ enabled, noticeHours, horizonDays, bufferMinutes, stepMinutes }`) |
 | Site texts | 🔓 `GET /api/texts`, `PUT /api/texts` (`{ lang, key, value }`, empty = original text) |
 | Stripe | 🔓 `GET /api/stripe/document?token=` (payment link), 🔓 `POST /api/stripe/webhook` (signed by Stripe), 🔓 `POST /api/stripe/create-checkout` (`{ token, email }` for a payment link), 🔓 `POST /api/stripe/create-subscription`, 🔓 `GET /api/stripe/check-payment`, 🔓 `GET /api/stripe/check-subscription`, 🔓 `GET /api/stripe/payment-result`, 🔓 `GET /api/stripe/subscription-result` |
 | Uploads | 🔓 `GET /api/upload/images/{file}` |

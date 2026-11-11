@@ -1,5 +1,5 @@
 -- Database of djason-chery.dev: every table of the site, then its default rows (no personal data).
--- Made from app/server/helpers/DatabaseSchema.js: the site makes the same tables at its start, so this file is never required,
+-- Made from frontend/server/helpers/DatabaseSchema.js: the site makes the same tables at its start, so this file is never required,
 -- it only lets the database be ready before (Docker runs it on the first start of the local database; online: phpMyAdmin > Import).
 -- Can be run again: a table that exists is kept, a default row never doubled.
 -- Do not change by hand: change DatabaseSchema.js, then make this file again.
@@ -274,5 +274,67 @@ CREATE TABLE IF NOT EXISTS dc_withdrawals (
     ip VARCHAR(64),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Booking page (/book): kinds of appointment offered (mode: phone, video, meeting; location empty = to agree / link sent later)
+CREATE TABLE IF NOT EXISTS dc_booking_types (
+    id VARCHAR(64) PRIMARY KEY,
+    name_fr VARCHAR(120) NOT NULL,
+    name_en VARCHAR(120) NOT NULL,
+    description_fr TEXT,
+    description_en TEXT,
+    duration INT NOT NULL DEFAULT 30,
+    mode VARCHAR(16) NOT NULL DEFAULT 'phone' CHECK(mode IN ('phone', 'video', 'meeting')),
+    location VARCHAR(255),
+    active TINYINT NOT NULL DEFAULT 1,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Three kinds to start with (admin > Bookings to change them), only when the table is empty
+INSERT INTO dc_booking_types (id, name_fr, name_en, description_fr, description_en, duration, mode, sort_order)
+SELECT * FROM (
+    SELECT 'booking-phone', 'Appel téléphonique', 'Phone call', 'Un premier échange rapide sur votre projet.', 'A quick first talk about your project.', 30, 'phone', 0
+    UNION ALL SELECT 'booking-video', 'Appel visio', 'Video call', 'On regarde votre projet ensemble, écran partagé.', 'We look at your project together, screen shared.', 45, 'video', 1
+    UNION ALL SELECT 'booking-meeting', 'Rendez-vous', 'Meeting', 'Une rencontre en personne, lieu à convenir.', 'A meeting in person, place to agree on.', 60, 'meeting', 2
+) AS defaults
+WHERE NOT EXISTS (SELECT 1 FROM dc_booking_types);
+
+-- Bookings of the visitors: moments in UTC, the kind copied, the secret of the cancel link sent by email
+CREATE TABLE IF NOT EXISTS dc_bookings (
+    id VARCHAR(64) PRIMARY KEY,
+    type_id VARCHAR(64),
+    type_name VARCHAR(255) NOT NULL,
+    mode VARCHAR(16) NOT NULL,
+    location VARCHAR(255),
+    start_at DATETIME NOT NULL,
+    end_at DATETIME NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(64),
+    message TEXT,
+    language VARCHAR(8) NOT NULL DEFAULT 'fr',
+    timezone VARCHAR(64),
+    status VARCHAR(16) NOT NULL DEFAULT 'booked' CHECK(status IN ('booked', 'cancelled')),
+    cancel_token VARCHAR(64) NOT NULL UNIQUE,
+    ip VARCHAR(64),
+    cancelled_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_bookings_start (start_at),
+    FOREIGN KEY(type_id) REFERENCES dc_booking_types(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Rules of the booking page (one row): open, notice (hours), horizon (days), free time between two appointments and between two starts (minutes)
+CREATE TABLE IF NOT EXISTS dc_booking_settings (
+    id VARCHAR(64) PRIMARY KEY,
+    enabled TINYINT NOT NULL DEFAULT 1,
+    notice_hours INT NOT NULL DEFAULT 12,
+    horizon_days INT NOT NULL DEFAULT 60,
+    buffer_minutes INT NOT NULL DEFAULT 15,
+    step_minutes INT NOT NULL DEFAULT 30,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO dc_booking_settings (id)
+SELECT 'booking-settings' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM dc_booking_settings);
 
 SET FOREIGN_KEY_CHECKS = 1;

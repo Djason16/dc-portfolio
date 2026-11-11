@@ -1,0 +1,197 @@
+/* Personal room /room/ (Lounge.vue, LoungeHost.vue, LoungeVisitor.vue): the look of the booking rooms (Room.vue) */
+.lounge,
+.lounge-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.75rem;
+    max-width: 40rem;
+}
+
+.lounge-panel {
+    width: 100%;
+    gap: 1.25rem;
+}
+
+.lounge__head {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1.5rem 1.75rem;
+    border-left: 2px solid var(--accent);
+    background: var(--panel);
+}
+
+.lounge__head p,
+.lounge-panel p {
+    margin: 0;
+}
+
+.lounge__what {
+    overflow-wrap: anywhere;
+}
+
+.lounge__state {
+    color: var(--accent);
+}
+
+.lounge__state.is-off,
+.lounge__muted,
+.lounge__link {
+    color: var(--fg-muted);
+}
+
+.lounge__notice {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-left: 2px solid var(--accent-yellow);
+    background: var(--panel);
+}
+
+.lounge__error {
+    color: #ffb4a8;
+}
+
+.lounge__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* Host: open or closed, notifications */
+.lounge-host__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+}
+
+.lounge-host__switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    cursor: pointer;
+}
+
+.lounge-host__switch i {
+    color: var(--fg-muted);
+}
+
+.lounge-host__switch[aria-checked='true'] i {
+    color: var(--accent);
+}
+
+.lounge-host__switch:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Host: the address to share */
+.lounge-host__share {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.lounge-host__url {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.lounge-host__input {
+    box-sizing: border-box;
+    flex: 1 1 12rem;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--field-line);
+    background: var(--panel);
+    color: var(--fg);
+}
+
+/* Focus: the border turns mint, like the other fields of the site (form-field.css) */
+.lounge-host__input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.lounge-host__current {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Host: the visitors knocking */
+.lounge-host__knocks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.lounge-host__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lounge-host__knock {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent);
+    background: var(--panel);
+}
+
+.lounge-host__who {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* Visitor: his name, the wait */
+.lounge-visitor__name {
+    width: 100%;
+    max-width: 24rem;
+}
+
+.lounge-visitor__wait {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border-left: 2px solid var(--accent);
+    background: var(--panel);
+}
+
+@media (max-width: 600px) {
+    .lounge__head,
+    .lounge-visitor__wait {
+        padding: 1.25rem;
+    }
+}

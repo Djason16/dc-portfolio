@@ -1,0 +1,16 @@
+/*
+ * Styles of the admin only (tables, quotes, invoices, contracts, missions, to do list), imported by components/views/Admin/Admin.vue:
+ * the public pages never wait for them (Lighthouse "render-blocking"). Same order as before in main.css.
+ */
+@import "components/editable-table.css";
+@import "components/editable-table-detail.css";
+@import "components/editable-table-mobile.css";
+@import "components/contract-container.css";
+@import "components/billing-document.css";
+@import "components/billing-document-end.css";
+@import "components/billing-admin.css";
+@import "components/billing-responsive.css";
+@import "components/admin-todo.css";
+@import "components/billing-editor.css";
+@import "components/billing-flow.css";
+@import "components/editor-missions.css";

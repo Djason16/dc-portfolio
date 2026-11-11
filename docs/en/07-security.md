@@ -7,11 +7,12 @@
 ## 01 — Admin login
 
 Email and password, then a one-time code sent by email. The forgotten password flow asks the security answer
-(`SECURITY_ANSWER`) and sends a temporary password.
+(`SECURITY_ANSWER`), then emails a link to `/reset-password/` (valid one hour, used once, only its SHA-256 is stored in
+`dc_password_resets`); the new password closes every session. The answer is the same whether the address has an account or not.
 
 ## 02 — Protected routes
 
-The session is checked by the API router (`server/api/[...path].js`) on the route that was matched,
+The session is checked by the API router (`server/api/[...path].ts`) on the route that was matched,
 so `/api/env`, `/api/env/` and `/api//env` are the same protected route.
 Only the actions listed in a controller's `publicActions` are public ([every route](05-api.md#04--every-route)).
 
@@ -19,7 +20,7 @@ Only the actions listed in a controller's `publicActions` are public ([every rou
 
 ## 03 — Rate limits
 
-Failed attempts are stored in the database (`dc_rate_limits`), per account and per IP:
+Failed attempts are stored in the database (`dc_rate_limits`), per IP (and, for the password, per account from that IP: wrong tries lock the one who types them, never the admin from his own connection; the code sent by e-mail still guards the account):
 
 | Attempt | Limit | Locked for |
 | ------- | ----- | ---------- |
@@ -35,7 +36,10 @@ Failed attempts are stored in the database (`dc_rate_limits`), per account and p
 
 - Stripe secret key, SMTP, database password, bank details and admin account stay on the server: never in a `NUXT_PUBLIC_` variable
 - `.env` files are never committed
+- `GET /api/settings` (public) gives neither the birth date (only `age`, worked out by the server) nor the numbering of the documents (`numbering`): only the logged-in admin gets them (`SettingsController.getAll`). The billing address stays public: the quotes, invoices and the withdrawal form show it to the clients (legal mentions)
 
 ---
 
 <p align="center"><sub><a href="06-admin-documents.md">← 06 — Admin & documents</a> &nbsp;·&nbsp; <a href="README.md">Documentation</a> &nbsp;·&nbsp; <a href="08-deployment.md">08 — Deployment →</a></sub></p>
+
+The address of a meeting in person is never in the public list of booking kinds (`GET /api/booking-types`): only the person who booked gets it (confirmation page and e-mail).

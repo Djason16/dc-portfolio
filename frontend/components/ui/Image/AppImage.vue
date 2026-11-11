@@ -1,0 +1,53 @@
+<template>
+    <!--
+        Image of the site: lazy loading by default, "priority" for an image seen at once (logo, top of page),
+        and the default image when the file is missing (a project image deleted, a wrong address...).
+        Classes and other attributes go on the <img>.
+    -->
+    <img ref="image" :src="current" :srcset="currentSrcset" :sizes="currentSrcset ? sizes : undefined" :alt="alt" :title="title ?? (alt || undefined)"
+        :width="width" :height="height" :loading="priority ? 'eager' : 'lazy'" :fetchpriority="priority ? 'high' : 'auto'" decoding="async" @error="useFallback" />
+</template>
+
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
+
+const props = defineProps({
+    src: { type: String, required: true },
+    // Text read by screen readers and search engines; '' for a decorative image
+    alt: { type: String, required: true },
+    // Shown on hover; the alt by default (none for a decorative image)
+    title: { type: String, default: undefined },
+    width: { type: [Number, String], default: undefined },
+    height: { type: [Number, String], default: undefined },
+    // Loaded at once (logo, top of page, PDF documents) instead of when it gets close to the screen
+    priority: { type: Boolean, default: false },
+    // Shown when the image cannot be loaded; '' to show nothing instead
+    fallback: { type: String, default: '/images/default_image.webp' },
+    // Copies of other widths ("a-320.webp 320w, a-640.webp 640w") and the width of the image on the page, for "sizes"
+    srcset: { type: String, default: undefined },
+    sizes: { type: String, default: undefined },
+})
+
+const current = ref(props.src)
+const currentSrcset = ref(props.srcset)
+watch(() => [props.src, props.srcset], () => {
+    current.value = props.src
+    currentSrcset.value = props.srcset
+})
+
+// Missing image: the fallback, then the default image when the fallback fails too (no loop if it is missing as well)
+const DEFAULT = '/images/default_image.webp'
+const useFallback = () => {
+    // A copy of the srcset missing: the src and its fallbacks only
+    if (currentSrcset.value) return (currentSrcset.value = undefined)
+    if (!props.fallback) return
+    if (current.value !== props.fallback) current.value = props.fallback
+    else if (current.value !== DEFAULT) current.value = DEFAULT
+}
+
+// An image of the server page can fail before the browser takes over the page (no error event then): checked once
+const image = ref<any>(null)
+onMounted(() => {
+    if (image.value?.complete && image.value.naturalWidth === 0) useFallback()
+})
+</script>

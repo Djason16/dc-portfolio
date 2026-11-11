@@ -31,7 +31,7 @@ manages clients, missions, projects, skills and availability, makes quotes, invo
 
 | Code | Part | Highlights |
 | ---- | ---- | ---------- |
-| `SI-01` | **Site** | Server-side rendering, French / English, SEO (sitemap, robots, meta tags), one scroll animation per section, cookie banner, online withdrawal |
+| `SI-01` | **Site** | Server-side rendering, French / English, SEO (sitemap, robots, meta tags), one scroll animation per section, cookie banner, online withdrawal, slot booking (phone, video call, meeting), in-house 1-to-1 video room for the video calls (WebRTC, no paid service) |
 | `AD-02` | **Admin** | Email + one-time code login, tools grouped by task, clients, missions, projects, skills, calendar, every text of the site and of the documents |
 | `DO-03` | **Documents** | Quotes, invoices and contracts stored, numbered in your own format (prefix, year / month, figures, go on from a number), payments, legal interest rates, PDF with real text in the ink of the site |
 | `TR-04` | **Translation** | The French typed in the admin fills the English (MyMemory, free, no key) |
@@ -49,8 +49,8 @@ Requires **Node.js 22.16+** (24 LTS recommended) and **Docker Desktop** (local M
 **Mac / Linux:**
 
 ```bash
-git clone https://github.com/Djason16/djason-cv.git
-cd djason-cv/app
+git clone https://github.com/Djason16/dc-portfolio.git
+cd dc-portfolio/frontend
 cp .env.example .env   # then fill in your values
 docker compose --project-directory .. --env-file .env up -d   # MySQL + phpMyAdmin
 npm install
@@ -81,7 +81,7 @@ Everything else is in **[`docs/`](docs/en/README.md)** (🇫🇷 [version franç
 
 ## 05 — License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE). The MediaPipe model and runtime of the video room backgrounds (`frontend/public/mediapipe/`, `@mediapipe/tasks-vision`) are Apache 2.0, by Google.
 
 ---
 
