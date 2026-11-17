@@ -64,8 +64,10 @@ const t = useLang().getTranslation
     cursor: pointer;
 }
 
-.room-panel__close:hover {
-    border-color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+    .room-panel__close:hover {
+        border-color: var(--accent);
+    }
 }
 
 .room-panel__close:focus-visible {

@@ -94,7 +94,7 @@
     outline-offset: 2px;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .admin-todo__item:hover {
         padding-left: 0.6rem;
         background: var(--panel);
@@ -129,9 +129,11 @@
     margin-top: 0.8rem;
 }
 
-.admin-todo__more:hover,
-.admin-todo__run:hover {
-    color: var(--fg);
+@media (hover: hover) and (pointer: fine) {
+    .admin-todo__more:hover,
+    .admin-todo__run:hover {
+        color: var(--fg);
+    }
 }
 
 /* What the server does alone, on a panel with a mint line, well apart from the board */

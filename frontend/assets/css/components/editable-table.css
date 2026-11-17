@@ -84,7 +84,7 @@
     transition: background-color var(--motion-fast) var(--ease), box-shadow var(--motion-fast) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .editable-table-wrapper .editable-table .table-row .action-buttons {
         opacity: 0.35;
     }
@@ -137,7 +137,7 @@
     opacity: 1;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .editable-table-wrapper .editable-table td.is-editable:hover .cell-value {
         text-decoration-color: var(--paper-muted);
     }

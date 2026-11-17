@@ -132,9 +132,11 @@
         display: none;
     }
 
-    /* Editable value: a light mark on touch */
-    .editable-table-wrapper .editable-table td.is-editable:active {
-        background-color: rgba(126, 230, 168, 0.08);
+    /* Editable value: a light mark when pressed with a mouse (never a mark left by a tap) */
+    @media (hover: hover) and (pointer: fine) {
+        .editable-table-wrapper .editable-table td.is-editable:active {
+            background-color: rgba(126, 230, 168, 0.08);
+        }
     }
 
     /* Title of a group, above its cards */

@@ -9,12 +9,13 @@
     transition: color var(--motion-fast) var(--ease), background-size var(--motion-base) var(--ease);
 }
 
-.header-top__link.is-active {
+/* The section on screen (aria-current, set by NavLink): light, with its line */
+.header-top__link[aria-current] {
     color: var(--paper);
     background-size: 100% 1px;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .header-top__link:hover {
         color: var(--paper);
     }

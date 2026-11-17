@@ -114,9 +114,14 @@ const removeLast = () => { if (!query.value && model.value.length) remove(model.
     opacity: 0.7;
 }
 
-.tag-picker__remove:hover,
 .tag-picker__remove:focus-visible {
     opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .tag-picker__remove:hover {
+        opacity: 1;
+    }
 }
 
 /* Suggestions: small quiet buttons under the field */
@@ -135,9 +140,15 @@ const removeLast = () => { if (!query.value && model.value.length) remove(model.
     transition: background-color var(--motion-fast) var(--ease), color var(--motion-fast) var(--ease);
 }
 
-.tag-picker__suggestion:hover,
 .tag-picker__suggestion:focus-visible {
     background: rgba(126, 230, 168, 0.12);
     color: var(--mint);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .tag-picker__suggestion:hover {
+        background: rgba(126, 230, 168, 0.12);
+        color: var(--mint);
+    }
 }
 </style>

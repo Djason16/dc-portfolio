@@ -68,7 +68,7 @@ a::after {
     transition: width var(--motion-fast) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     a:hover::after {
         width: 100%;
     }
@@ -81,7 +81,7 @@ a::after {
     display: none;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .text-link {
         background: linear-gradient(var(--second-color), var(--second-color)) no-repeat left bottom / 0 1px;
         -webkit-box-decoration-break: clone;
@@ -139,9 +139,11 @@ html {
     background-clip: padding-box;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--mint);
-    background-clip: padding-box;
+@media (hover: hover) and (pointer: fine) {
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--mint);
+        background-clip: padding-box;
+    }
 }
 
 ::-webkit-scrollbar-corner {

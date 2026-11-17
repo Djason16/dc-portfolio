@@ -245,9 +245,14 @@ const adminSections = Array.from({ length: 5 }, (_, i) => ({ titleKey: `adminSec
     cursor: pointer;
 }
 
-.admin-settings-toggle:hover,
 .admin-settings-toggle:focus-visible {
     color: var(--fg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-settings-toggle:hover {
+        color: var(--fg);
+    }
 }
 
 .login-buttons {

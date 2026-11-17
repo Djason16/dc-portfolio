@@ -154,7 +154,7 @@ const onKey = async (event: KeyboardEvent) => {
     outline-offset: 2px;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .booking-calendar__day.is-free:not(.is-selected):hover {
         border-color: var(--accent);
         color: var(--accent);

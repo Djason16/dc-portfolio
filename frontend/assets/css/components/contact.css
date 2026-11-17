@@ -43,7 +43,7 @@
     transition: transform 0.8s var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .contact-section .contact-section__email:hover {
         background-size: 100% 2px;
         color: var(--accent);
@@ -76,7 +76,7 @@
     transition: color var(--motion-fast) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .contact-section .contact-section__item a:hover {
         color: var(--accent);
     }
@@ -91,7 +91,7 @@
     transition: background-color var(--motion-base) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .contact-section .contact-section__button:hover {
         background: var(--fg);
     }
@@ -117,7 +117,7 @@
     transition: background-color var(--motion-base) var(--ease), color var(--motion-base) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .contact-section .contact-section__button--ghost:hover {
         background: var(--accent);
         color: var(--ink-900);

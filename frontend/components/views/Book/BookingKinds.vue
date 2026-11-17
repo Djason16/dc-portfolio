@@ -103,7 +103,7 @@ const t = lang.getTranslation
     color: var(--fg-muted);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .booking-kind:hover {
         border-color: rgba(126, 230, 168, 0.5);
     }

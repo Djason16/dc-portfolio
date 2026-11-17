@@ -68,9 +68,14 @@ const current = computed(() => props.media.effects.effect.value)
     transition: border-color var(--motion-fast) var(--ease);
 }
 
-.room-effects__tile:hover:not(:disabled),
 .room-effects__tile.is-on {
     border-color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .room-effects__tile:hover:not(:disabled) {
+        border-color: var(--accent);
+    }
 }
 
 .room-effects__tile.is-on {

@@ -5,6 +5,9 @@ import { withTrailingSlash } from './pathHelpers';
 
 const YEAR = new Date().getFullYear()
 
+// Designer, developer and owner of the site (meta author, JSON-LD Person)
+const AUTHOR = "Djason CHERY"
+
 // <head> of each page: address, image, indexing (titles and descriptions in plugins/translations/common/seo.js)
 const seoConfig: Record<string, { url: string, image?: string, keywords?: string, keywordsEn?: string, noIndex?: boolean, [key: string]: unknown }> = {
     notFound: {
@@ -85,7 +88,7 @@ const seoConfig: Record<string, { url: string, image?: string, keywords?: string
 
 // Generates SEO metadata for a page ("site" = useSite(), like the buildSeo of DC Scaffold (https://github.com/Djason16/dc-scaffold))
 export const seoMetaData = (pageKey: string, lang: { current: { value: string }, getTranslation: (key: string, values?: Record<string, string | number>) => string }, site: Record<string, string>) => {
-    const { name, url: baseUrl, email, phone, tva: tvaNumber, linkedin, github, malt, instagram, area } = site
+    const { name, url: baseUrl, email, phone, tva: tvaNumber, linkedin, github, malt, instagram, tiktok, facebook, area } = site
 
     const {
         url = "",
@@ -140,7 +143,7 @@ export const seoMetaData = (pageKey: string, lang: { current: { value: string },
             ...(area && area.includes(',') ? { addressRegion: (area.split(',')[0] ?? '').trim() } : {}),
             addressCountry: "FR"
         },
-        sameAs: [linkedin, github, malt, instagram].filter(Boolean),
+        sameAs: [linkedin, github, malt, instagram, tiktok, facebook].filter(Boolean),
         serviceType: [
             "Web Development",
             "SEO",
@@ -164,27 +167,35 @@ export const seoMetaData = (pageKey: string, lang: { current: { value: string },
         professionalServiceSchema.vatID = tvaNumber
     }
 
-    // Structured data of the page itself
+    // Structured data of the page itself: the site, the page and their author (Djason CHERY: creator, author,
+    // publisher and copyright holder), with the same profiles (sameAs) as the business above
+    const person = {
+        "@type": "Person",
+        "@id": `${baseUrl}/#person`,
+        name: AUTHOR,
+        url: baseUrl,
+        jobTitle: locale === "en" ? "Web developer" : "Développeur web",
+        sameAs: professionalServiceSchema.sameAs
+    }
+    const authorRef = { "@id": person["@id"] }
+    const authorship = { creator: authorRef, author: authorRef, publisher: authorRef, copyrightHolder: authorRef }
     const webPageSchema = {
         "@context": "https://schema.org",
-        "@type": "WebPage",
-        name: title,
-        url: pageUrl,
-        description,
-        inLanguage: locale,
-        isPartOf: {
-            "@type": "WebSite",
-            name,
-            url: baseUrl
-        }
+        "@graph": [
+            { "@type": "WebSite", "@id": `${baseUrl}/#website`, name, url: withTrailingSlash(baseUrl ?? ""), inLanguage: locale, ...authorship },
+            { "@type": "WebPage", "@id": `${pageUrl}#webpage`, name: title, url: pageUrl, description, inLanguage: locale, isPartOf: { "@id": `${baseUrl}/#website` }, ...authorship },
+            person
+        ]
     }
 
     // Meta tags: description, Open Graph and Twitter cards
     const meta = {
         title,
         description,
-        author: name,
-        publisher: name,
+        author: AUTHOR,
+        publisher: AUTHOR,
+        // Project generator the site is built with (legal notice, section 9)
+        generator: "DC Scaffold",
         keywords,
         robots: robotsContent,
         htmlAttrs: { lang: locale },

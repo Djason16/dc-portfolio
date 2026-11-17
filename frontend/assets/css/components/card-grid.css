@@ -99,7 +99,7 @@ a.grid-card {
     --name-max: var(--font-display-s);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     /* Hover read on the place of the card (it does not move): the lifted card never slips from under the mouse near its bottom edge */
     .grid-card:hover {
         background-color: rgba(255, 255, 255, 0.08);

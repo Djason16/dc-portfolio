@@ -21,7 +21,7 @@ const providerInfo = computed(() => ({
 }))
 
 // Generates legal sections dynamically
-const legalSections = Array.from({ length: 8 }, (_, i) => ({
+const legalSections = Array.from({ length: 9 }, (_, i) => ({
     titleKey: `legalSection${i + 1}Title`,
     contentKey: `legalSection${i + 1}Content`
 }))

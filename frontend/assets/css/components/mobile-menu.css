@@ -35,9 +35,16 @@
     transition: color var(--motion-fast) var(--ease);
 }
 
-/* A tap: only the color changes */
-.mobile-menu .mobile-menu__link:active .mobile-menu__line {
+/* The current page (aria-current) in mint; with a mouse, the link under the pointer or pressed too (never after a tap) */
+.mobile-menu .mobile-menu__link[aria-current="page"] .mobile-menu__line {
     color: var(--mint);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .mobile-menu .mobile-menu__link:hover .mobile-menu__line,
+    .mobile-menu .mobile-menu__link:active .mobile-menu__line {
+        color: var(--mint);
+    }
 }
 
 .mobile-menu .mobile-menu__link::after,
