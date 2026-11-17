@@ -35,9 +35,29 @@
     transition: color var(--motion-fast) var(--ease);
 }
 
-/* A tap: only the color changes */
-.mobile-menu .mobile-menu__link:active .mobile-menu__line {
+/* The current page (aria-current="page") swaps its color, never a line: a light link turns mint, a mint one
+   ("Book", "Pay me") turns light. With a mouse, the link under the pointer swaps the same way (never after a tap) */
+.mobile-menu .mobile-menu__link[aria-current="page"] {
     color: var(--mint);
+}
+
+.mobile-menu .mobile-menu__pay[aria-current="page"] {
+    color: var(--paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .mobile-menu .mobile-menu__link:hover {
+        color: var(--mint);
+    }
+
+    .mobile-menu .mobile-menu__pay:hover,
+    .mobile-menu .mobile-menu__link[aria-current="page"]:not(.mobile-menu__pay):hover {
+        color: var(--paper);
+    }
+
+    .mobile-menu .mobile-menu__pay[aria-current="page"]:hover {
+        color: var(--mint);
+    }
 }
 
 .mobile-menu .mobile-menu__link::after,

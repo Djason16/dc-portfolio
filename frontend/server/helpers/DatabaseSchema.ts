@@ -2,6 +2,7 @@ import { DatabaseHelper } from '../utils/DatabaseHelper'
 import { SessionHelper } from './SessionHelper'
 import { BOOKING_SEEDS, BOOKING_TABLES, migrateBookings } from './BookingSchema'
 import { AUTH_TABLES } from './AuthSchema'
+import { LICENSE_SEEDS, LICENSE_TABLES } from './LicenseSchema'
 
 /*
  * Tables of the project (MySQL), created at startup by server/plugins/init-database.js.
@@ -144,6 +145,7 @@ const TABLES = {
      * next number of its series (admin → Numbering, utils/numbering.js: DE-2026-0001 by default) and can no longer be changed. The client is copied in "client" when the
      * document is finalized, so a later change of the client never changes a sent document.
      * pay_token: secret of its payment link (page Pay me, server/helpers/PayLinkHelper.js), made the first time the link is asked.
+     * pay_until: the link works until this day when later than 12 months after its own dates (pushed back each time the link is given).
      * JSON texts: lines, payment_plan, deductions (deposits taken off a balance invoice), client, options (contract: service, interest rate).
      */
     dc_documents: `
@@ -169,6 +171,7 @@ const TABLES = {
         notes TEXT,
         options TEXT,
         pay_token VARCHAR(64) UNIQUE,
+        pay_until DATE,
         total_ht DOUBLE DEFAULT 0,
         total_tva DOUBLE DEFAULT 0,
         total_ttc DOUBLE DEFAULT 0,
@@ -197,6 +200,7 @@ const TABLES = {
         ip VARCHAR(64),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP`,
     ...BOOKING_TABLES, // Booking page: kinds of appointment, bookings, rules (BookingSchema.ts)
+    ...LICENSE_TABLES, // Licences of the DC tools sold on tools.djason-chery.dev (LicenseSchema.ts)
 }
 
 // Default rows, inserted only when their table is empty
@@ -235,16 +239,18 @@ const SEEDS = {
     dc_availability_override: () => DatabaseHelper.insert('INSERT INTO dc_availability_override (id, enabled, status) VALUES (?, ?, ?)',
         [DatabaseHelper.newId(), 0, 'unavailable']),
     ...BOOKING_SEEDS,
+    ...LICENSE_SEEDS,
 }
 
 // Changes of tables made before their current version (safe at every start: each one checks first). dc_documents: the contracts
-// (a new type, the options column), the payment links (pay_token); dc_missions: the invoice that billed a mission (invoice_id), its description
+// (a new type, the options column), the payment links (pay_token, pay_until); dc_missions: the invoice that billed a mission (invoice_id), its description
 const hasColumn = async (table: string, column: string) => Boolean(await DatabaseHelper.fetchOne(
     'SELECT 1 AS found FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?', [table, column]))
 
 const migrate = async () => {
     if (!(await hasColumn('dc_documents', 'options'))) await DatabaseHelper.execute('ALTER TABLE dc_documents ADD COLUMN options TEXT')
     if (!(await hasColumn('dc_documents', 'pay_token'))) await DatabaseHelper.execute('ALTER TABLE dc_documents ADD COLUMN pay_token VARCHAR(64) UNIQUE')
+    if (!(await hasColumn('dc_documents', 'pay_until'))) await DatabaseHelper.execute('ALTER TABLE dc_documents ADD COLUMN pay_until DATE AFTER pay_token')
     if (!(await hasColumn('dc_missions', 'invoice_id'))) await DatabaseHelper.execute('ALTER TABLE dc_missions ADD COLUMN invoice_id VARCHAR(64)')
     if (!(await hasColumn('dc_missions', 'description'))) await DatabaseHelper.execute('ALTER TABLE dc_missions ADD COLUMN description TEXT AFTER title')
 

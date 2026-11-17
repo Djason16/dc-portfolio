@@ -1,7 +1,9 @@
-/* Link of the header to a section of the home page (NavLink): small spaced capitals, light when its section is on screen */
+/* Links of the header to the sections of the home page (NavLink), in small spaced capitals. A line under them,
+   drawn under the link the mouse is on (mouse only) and kept for good under the current one (aria-current: the
+   section on screen), on every screen, touch included. "Pay me" has no line: its colors swap instead (header-top.css) */
 .header-top__link {
     padding-bottom: 0.2rem;
-    /* Light enough on the slate header (5:1) */
+    /* Light enough on the slate header (5:1), lighter on the current section */
     color: var(--paper-muted);
     text-decoration: none;
     background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
@@ -9,13 +11,14 @@
     transition: color var(--motion-fast) var(--ease), background-size var(--motion-base) var(--ease);
 }
 
-.header-top__link.is-active {
+.header-top__link[aria-current] {
     color: var(--paper);
     background-size: 100% 1px;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .header-top__link:hover {
         color: var(--paper);
+        background-size: 100% 1px;
     }
 }

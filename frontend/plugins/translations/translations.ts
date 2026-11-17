@@ -14,6 +14,7 @@ import adminContracts from './pages/admin/contracts'
 import adminBilling from './pages/admin/billing'
 import adminBooking from './pages/admin/booking'
 import adminLounge from './pages/admin/lounge'
+import adminLicenses from './pages/admin/licenses'
 import adminBillingContracts from './pages/admin/billingContracts'
 import adminBillingDocument from './pages/admin/billingDocument'
 import home from './pages/index'
@@ -25,6 +26,7 @@ import privacy from './pages/privacy'
 import refundPolicy from './pages/refundPolicy'
 import terms from './pages/terms'
 import withdrawal from './pages/withdrawal'
+import licenses from './pages/licenses'
 import book from './pages/book'
 import room from './pages/room'
 import lounge from './pages/lounge'
@@ -43,8 +45,8 @@ export const LANGUAGES: string[] = ['fr', 'en']
  */
 export const TRANSLATIONS: Record<string, Record<string, string>>[] = [
     common, preferences, seo,
-    home, skills, legal, privacy, terms, refundPolicy, withdrawal, book, room, lounge, payMe, login,
-    adminDashboard, adminClients, adminMissions, adminDocuments, adminContracts, adminBilling, adminBillingContracts, adminBillingDocument, adminCalendar, adminTimezonesAfricaAmericas, adminTimezonesAsiaEuropeOceania, adminProjects, adminSettings, adminBooking, adminLounge,
+    home, skills, legal, privacy, terms, refundPolicy, withdrawal, licenses, book, room, lounge, payMe, login,
+    adminDashboard, adminClients, adminMissions, adminDocuments, adminContracts, adminBilling, adminBillingContracts, adminBillingDocument, adminCalendar, adminTimezonesAfricaAmericas, adminTimezonesAsiaEuropeOceania, adminProjects, adminSettings, adminBooking, adminLounge, adminLicenses,
 ]
 
 /*

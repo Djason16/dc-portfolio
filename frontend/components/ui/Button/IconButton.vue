@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 defineProps({
-    // Name of the icon: check, close, trash, download, sliders, save, chevron-left, chevron-right, pen, copy, plus, euro, video
+    // Name of the icon: check, close, trash, download, sliders, save, chevron-left, chevron-right, pen, copy, plus, euro, video, key
     icon: { type: String, required: true },
     // Tooltip and text read by screen readers
     label: { type: String, required: true },
@@ -41,5 +41,6 @@ const ICONS: Record<string, { path: string, circles?: number[][] }> = {
     plus: { path: 'M12 5v14M5 12h14' },
     euro: { path: 'M17.5 6.5A7 7 0 1 0 17.5 17.5M4 10h9M4 14h9' },
     video: { path: 'M3.5 7h11v10h-11zM14.5 10.5l6-3.5v10l-6-3.5' },
+    key: { path: 'M10.5 12a4 4 0 1 1-8 0a4 4 0 0 1 8 0zM10.5 12h11M17.5 12v3.5M20.5 12v2.5' },
 }
 </script>

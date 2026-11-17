@@ -48,7 +48,7 @@
     transition: transform var(--motion-base) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .custom-button:hover {
         background: var(--fg);
         color: var(--ink-900);

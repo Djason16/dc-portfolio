@@ -31,9 +31,14 @@
     transition: color 0.2s ease;
 }
 
-.editor-missions__all:hover,
 .editor-missions__all:focus-visible {
     color: var(--fg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .editor-missions__all:hover {
+        color: var(--fg);
+    }
 }
 
 /* Tick, mission, date, time, amount */
@@ -55,9 +60,11 @@
     cursor: default;
 }
 
-.editor-missions__row:not(.editor-missions__row--head):hover {
-    background: var(--panel);
-    color: var(--fg);
+@media (hover: hover) and (pointer: fine) {
+    .editor-missions__row:not(.editor-missions__row--head):hover {
+        background: var(--panel);
+        color: var(--fg);
+    }
 }
 
 .editor-missions__row.is-picked {

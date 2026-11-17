@@ -138,9 +138,14 @@ onBeforeUnmount(() => {
     cursor: pointer;
 }
 
-.room-tools__btn:hover,
 .room-tools__btn.is-on {
     border-color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .room-tools__btn:hover {
+        border-color: var(--accent);
+    }
 }
 
 .room-tools__btn:focus-visible {

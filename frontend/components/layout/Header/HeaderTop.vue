@@ -41,6 +41,7 @@ import AppImage from '@/components/ui/Image/AppImage.vue'
 import { useLang } from '@/composables/useLang'
 import { useSite } from '@/composables/useSite'
 import { withTrailingSlash } from '@/utils/pathHelpers'
+import { pageChanging, waitFor } from '@/utils/scroll'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import NavLink from '@/components/ui/Nav/NavLink.vue'
@@ -64,6 +65,7 @@ const homeNavItems = [
     { id: 'about-me', translationKey: 'aboutMe', label: 'About Me' },
     { id: 'skills', translationKey: 'skillsTitle', label: 'Skills' },
     { id: 'services', translationKey: 'servicesTitle', label: 'Services' },
+    { id: 'tools', translationKey: 'toolsLabel', label: 'Tools' },
     { id: 'contact', translationKey: 'contactLabel', label: 'Contact' }
 ]
 
@@ -73,16 +75,22 @@ const menuOpen = ref(false)
 
 const activeSection = ref('')
 let observer: IntersectionObserver | null = null
-const watchSections = () => {
+// Back on the home page from another page, its sections only exist once the change of page has faded (out-in, longer
+// than a fixed delay): the observer waits for them, otherwise it watches nothing and no section link is ever current
+const watchSections = async () => {
     observer?.disconnect()
+    observer = null
     activeSection.value = ''
     if (!isHomePage.value) return
+    const ids = homeNavItems.map(item => item.id)
+    await waitFor(() => !pageChanging() && ids.every(id => document.getElementById(id)))
+    if (!isHomePage.value || observer) return
     observer = new IntersectionObserver(entries => {
         for (const entry of entries) if (entry.isIntersecting) activeSection.value = entry.target.id
     }, { rootMargin: '-45% 0px -50% 0px' })
-    homeNavItems.forEach(item => { const el = document.getElementById(item.id); if (el) observer?.observe(el) })
+    ids.forEach(id => { const el = document.getElementById(id); if (el) observer?.observe(el) })
 }
 onMounted(watchSections)
-watch(isHomePage, () => setTimeout(watchSections, 100))
+watch(isHomePage, watchSections)
 onUnmounted(() => observer?.disconnect())
 </script>

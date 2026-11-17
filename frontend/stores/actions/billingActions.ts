@@ -58,11 +58,12 @@ export const billingActions = {
         return keep(this, await api.post(`/documents/${id}/contract-choice`, { none }))
     },
 
-    // Payment link of a finalized quote or invoice (Pay me page): kept on the document, so its PDF prints it
+    // Payment link of a finalized quote or invoice (Pay me page): kept on the document, so its PDF prints it.
+    // Asked again (copied to be sent), it works 12 months from today: { token, url, until }
     async payLink(this: BillingStore, id: string) {
         const res = await api.post(`/documents/${id}/pay-link`)
         const doc = this.documents.find(d => d.id === id)
-        if (res.success && doc) doc.payToken = res.token
+        if (res.success && doc) Object.assign(doc, { payToken: res.token, payUntil: res.until })
         return res
     },
 

@@ -8,7 +8,8 @@ import type { H3Event } from 'h3'
  *   GET  /api/stripe/check-payment?sessionId=...                     -> { paid, status, amount, currency } (a payment link: saved on its document)
  *   GET  /api/stripe/document?token=...                              the document of a payment link and what is left to pay (PayLinkHelper)
  *   GET  /api/stripe/document-file?token=...                         the whole document of a link and the bank details: its PDF drawn by the browser
- *   POST /api/stripe/webhook                                         events sent by Stripe (signed): a paid payment link saved
+ *   POST /api/stripe/webhook                                         events sent by Stripe (signed): a paid payment link saved,
+ *                                                                    the licences of the DC tools (LicenseStripe.ts),
  *                                                                    even when the client closed the page too early
  *   GET  /api/stripe/check-subscription?sessionId=...                -> { active, status, ... }
  *   GET  /api/stripe/payment-result?type=success|cancel              HTML page closing the popup
@@ -53,6 +54,7 @@ export default class StripeController extends Controller {
         let data: Omit<Parameters<typeof StripeHelper.createCheckout>[0], 'successUrl' | 'cancelUrl'>
         if (body.token) {
             const info = await PayLinkHelper.summary(body.token)
+            if (!info && await PayLinkHelper.expired(body.token)) return ResponseHelper.error(event, 'payLinkExpired', 410)
             if (!info || info.amount <= 0) return ResponseHelper.error(event, 'payLinkNothing', 409)
             const label = info.type === 'invoice' ? 'Facture' : 'Devis'
             // The automatic debit of the next steps: only a quote with steps after this one, and only when the client agreed
@@ -102,18 +104,24 @@ export default class StripeController extends Controller {
         const stripeEvent = StripeHelper.verifyWebhook((await readRawBody(event, 'utf8')) ?? '', getHeader(event, 'stripe-signature') ?? '')
         if (['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(stripeEvent.type))
             await saveLinkPayment(stripeEvent.data.object as Stripe.Checkout.Session)
+        // Licences of the DC tools: key after the first payment, end of access following the subscription (LicenseStripe.ts)
+        await LicenseStripe.handle(stripeEvent)
         return ResponseHelper.success(event, { received: true })
     }
 
     // The document of a payment link: what the Pay me page shows (nothing private beyond its client and amounts)
     async documentFile(event: H3Event) {
-        const file = await PayLinkHelper.file(String(RequestHelper.query(event, 'token') ?? ''))
-        return file ? ResponseHelper.success(event, file) : ResponseHelper.notFound(event, 'Unknown link')
+        const token = String(RequestHelper.query(event, 'token') ?? '')
+        const file = await PayLinkHelper.file(token)
+        if (file) return ResponseHelper.success(event, file)
+        return await PayLinkHelper.expired(token) ? ResponseHelper.error(event, 'payLinkExpired', 410) : ResponseHelper.notFound(event, 'Unknown link')
     }
 
     async document(event: H3Event) {
-        const info = await PayLinkHelper.summary(String(RequestHelper.query(event, 'token') ?? ''))
-        if (!info) return ResponseHelper.notFound(event, 'payLinkUnknown')
+        const token = String(RequestHelper.query(event, 'token') ?? '')
+        const info = await PayLinkHelper.summary(token)
+        // Too old: nothing of the document is shown, the page says to ask for a new link
+        if (!info) return await PayLinkHelper.expired(token) ? ResponseHelper.error(event, 'payLinkExpired', 410) : ResponseHelper.notFound(event, 'payLinkUnknown')
         const { documentId, ...shown } = info
         return ResponseHelper.success(event, { document: shown })
     }

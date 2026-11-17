@@ -41,6 +41,8 @@ const toDocument = (row: any, payments: any[] = []): BillingDocument => ({
     finalizedAt: row.finalized_at, createdAt: row.created_at,
     // Secret of its payment link (empty until the admin asks for it): printed on the PDF
     payToken: row.pay_token || '',
+    // Last day of its payment link when given again later than its own dates (utils/billing.ts payLinkUntil)
+    payUntil: isoDate(row.pay_until),
     payments: payments.map(p => ({ id: p.id, date: isoDate(p.date), amount: p.amount, method: p.method, note: p.note || '' })),
 })
 

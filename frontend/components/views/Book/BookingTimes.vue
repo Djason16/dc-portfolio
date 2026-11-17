@@ -86,7 +86,7 @@ const labelId = 'booking-times-day'
     outline-offset: 2px;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .booking-times__slot:not(.is-selected):hover {
         border-color: var(--accent);
         color: var(--accent);

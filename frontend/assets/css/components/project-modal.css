@@ -139,7 +139,7 @@
     height: 0.95rem;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .project-modal .project-modal__link:hover {
         gap: 1rem;
         background: var(--fg);

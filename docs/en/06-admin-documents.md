@@ -118,6 +118,22 @@ Its articles are in `components/views/Documents/ContractContainer/` (style `cont
 one rate per half-year, professional and individual). The editor shows it, and warns when the rate of the half-year is missing;
 the PDF prints the penalties (three times the legal rate). The rate is kept with the document once finalized.
 
+## 06 bis — Licences of the DC tools (admin → Work → DC licences)
+
+DC Scaffold, DC Prospect and DC Sentinel (sold on https://tools.djason-chery.dev/) check their Pro key with this site.
+
+- **Bought:** the buttons of the tools site open `/api/licenses/checkout`, a Stripe subscription page (-30 % launch coupon for the first 50 of each tool while it lasts). After the payment, the Stripe webhook creates the key and e-mails it; renewals and cancellations move its end of access (`LicenseStripe.ts`).
+- **Offered:** *Offer a key*: e-mail, tools, 1 month / 3 months / 1 year / lifetime, a note; the key is e-mailed and shown once.
+- **List:** status (active / revoked), end of access, tools and note are edited in the table; *New key* replaces a lost key (the old one stops at once).
+- **Minimum versions:** older versions of a tool show « Update required ».
+- **Stripe setup:** `node scripts/stripe-licenses.mjs .env` (test) or `.env.production` (live) creates the products, the prices (lookup keys `dc_<tool>_<month|year>`), the launch coupons and the customer portal settings. Nothing to add in the `.env` files.
+- **Free trial:** `POST /api/licenses/trial` e-mails a 14-day key (one per e-mail and per offer, table `dc_license_trials`); it shows in the list as an offered key with the note « Essai 14 jours ».
+- **DC complet bundle:** `product=bundle` (29 €/month, 290 €/year): one key for the three tools.
+- **Help requests:** `POST /api/licenses/support` forwards a tool's help request to the owner's e-mail (reply-to the user).
+- **Change a price or create an offer from the admin:** DC licences → *Prices and offers*: click a price to change it (new Stripe price for new customers, subscribers keep theirs), *New offer* (tool, reduction, length, places, end date, FR / EN texts), *Stop the offer*.
+- **Prices and offers (no rebuild of the tools site):** prices are Stripe's (lookup keys `dc_<tool>_<month|year>`). An offer = a Stripe coupon with metadata `dc_product` (`scaffold`, `prospect`, `sentinel`, `bundle` or `all`), `dc_label_fr` and `dc_label_en`; checkout applies the best running offer and `GET /api/licenses/sales` gives it to the tools site (read every 5 minutes). An offer ends by itself at its last use (max redemptions), its end date or when the coupon is deleted.
+- The key is never stored in clear (SHA-256 + its last 5 letters).
+
 ## 07 — Changing a template
 
 Edit the components of `components/views/Documents/` freely, but **keep their CSS classes**:

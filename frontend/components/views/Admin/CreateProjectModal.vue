@@ -159,10 +159,16 @@ onBeforeUnmount(() => filePreview.value && URL.revokeObjectURL(filePreview.value
     transition: background-color var(--motion-fast) var(--ease), color var(--motion-fast) var(--ease);
 }
 
-.project-form__pick:hover,
 .project-form__pick:focus-within {
     background: rgba(126, 230, 168, 0.12);
     color: var(--mint);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .project-form__pick:hover {
+        background: rgba(126, 230, 168, 0.12);
+        color: var(--mint);
+    }
 }
 
 .project-form__file {

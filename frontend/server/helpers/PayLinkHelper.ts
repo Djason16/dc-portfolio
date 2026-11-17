@@ -1,6 +1,6 @@
 import { todayIso } from '~/utils/display'
 import { randomBytes } from 'node:crypto'
-import { documentTotals, paymentState, planSteps, round2, type PlanStep } from '~/utils/billing'
+import { addMonths, documentTotals, PAY_LINK_MONTHS, payLinkUntil, paymentState, planSteps, round2, type PlanStep } from '~/utils/billing'
 import { DatabaseHelper } from '../utils/DatabaseHelper'
 import { DocumentMailHelper } from './DocumentMailHelper'
 import { DocumentsHelper, type Document } from './DocumentsHelper'
@@ -8,9 +8,13 @@ import { DocumentsHelper, type Document } from './DocumentsHelper'
 /*
  * Payment links of the quotes and invoices: the client pays on the Pay me page (/pay-me/?doc=<token>), by card (Stripe).
  * The amount always comes from the document, never from the browser.
- *   await PayLinkHelper.link(id)          the secret of a finalized document (made once), for the admin
+ *   await PayLinkHelper.link(id)          the secret of a finalized document (made once), for the admin and the emails: the link
+ *                                         then works at least 12 months from today (pay_until), so a late payment still goes through
  *   await PayLinkHelper.file(token)       the whole document of a link, to draw its PDF on the Pay me page
  *   await PayLinkHelper.summary(token)    what the page shows: number, client, the steps of a quote, what is left to pay
+ *   await PayLinkHelper.expired(token)    true when the link of a payable document is too old (utils/billing.ts payLinkUntil)
+ * A link works 12 months after the last date of its document, or 12 months after it was last given: past that, file and summary
+ * give null (the page says to ask for a new one). A payment started before (Stripe return, webhook, automatic debit) is still saved.
  *   await PayLinkHelper.record(payment)   a paid Stripe session (or an automatic charge) saved once:
  *       an invoice  -> a payment on it
  *       a quote     -> the invoice of its next step (deposit, installment or the whole: the one already made or a new one), numbered,
@@ -50,11 +54,17 @@ export const stepsOf = async (quote: Document) => {
 export const nextStep = async (quote: Document) => (await stepsOf(quote)).next
 
 // The document of a payment link (48 hexadecimal letters) while it can be paid, else null
-const payableOf = async (token: string) => {
+const documentOf = async (token: string) => {
     if (!/^[a-f0-9]{48}$/.test(String(token || ''))) return null
     const row = await DatabaseHelper.fetchOne('SELECT id FROM dc_documents WHERE pay_token = ?', [token])
     const doc = row && await DocumentsHelper.one(row.id)
     return doc && PAYABLE.includes(doc.status) ? doc : null
+}
+const isExpired = (doc: Document) => payLinkUntil(doc) < todayIso()
+// The same while the link works; anyDate: also past its last day (a payment already made through it is saved all the same)
+const payableOf = async (token: string, { anyDate = false } = {}) => {
+    const doc = await documentOf(token)
+    return doc && (anyDate || !isExpired(doc)) ? doc : null
 }
 
 const clientName = (doc: Document): string => doc.client?.name || [doc.client?.firstname, doc.client?.lastname].filter(Boolean).join(' ') || ''
@@ -63,16 +73,25 @@ const clientName = (doc: Document): string => doc.client?.name || [doc.client?.f
 const autopayShown = (autopay: { active?: boolean, card?: string, error?: string } | undefined) => autopay ? { active: Boolean(autopay.active), card: autopay.card || '', error: autopay.error || '' } : null
 
 export const PayLinkHelper = {
-    /** The secret of the payment link of a finalized quote or invoice (the same one every time). */
+    /**
+     * The secret of the payment link of a finalized quote or invoice (the same one every time), and its last day.
+     * Given again (admin copy, an email), it works PAY_LINK_MONTHS months from today when that is later.
+     */
     async link(id: string) {
         const doc = await DocumentsHelper.one(id)
         if (!doc || !['quote', 'invoice'].includes(doc.type)) return { error: 'Document not found', status: 404 }
         if (!PAYABLE.includes(doc.status)) return { error: 'Finalize the document first', status: 409 }
         const row = await DatabaseHelper.fetchOne('SELECT pay_token FROM dc_documents WHERE id = ?', [id])
-        if (row?.pay_token) return { token: row.pay_token }
-        const token = randomBytes(24).toString('hex')
-        await DatabaseHelper.execute('UPDATE dc_documents SET pay_token = ? WHERE id = ?', [token, id])
-        return { token }
+        const token: string = row?.pay_token || randomBytes(24).toString('hex')
+        const until = [payLinkUntil(doc), addMonths(todayIso(), PAY_LINK_MONTHS)].sort()[1]!
+        await DatabaseHelper.execute('UPDATE dc_documents SET pay_token = ?, pay_until = ? WHERE id = ?', [token, until, id])
+        return { token, until }
+    },
+
+    /** True when the link is the one of a payable document, but past its last day */
+    async expired(token: string) {
+        const doc = await documentOf(token)
+        return Boolean(doc && isExpired(doc))
     },
 
     /**
@@ -88,8 +107,8 @@ export const PayLinkHelper = {
     },
 
     /** The document of a link and what is left to pay; null when the link is unknown or the document cannot be paid. */
-    async summary(token: string) {
-        const doc = await payableOf(token)
+    async summary(token: string, options: { anyDate?: boolean } = {}) {
+        const doc = await payableOf(token, options)
         if (!doc) return null
 
         const base = { type: doc.type, kind: doc.kind, number: doc.number, title: doc.title, client: clientName(doc), email: doc.client?.email || '', currency: doc.currency || 'EUR', total: doc.netToPay, documentId: doc.id }
@@ -131,7 +150,8 @@ export const PayLinkHelper = {
         const reference = `Stripe ${payment.id}`
         if (await DatabaseHelper.fetchOne('SELECT id FROM dc_payments WHERE note = ?', [reference])) return { skipped: true }
 
-        const info = await this.summary(token)
+        // Paid through the link before its last day: saved even when it has expired since
+        const info = await this.summary(token, { anyDate: true })
         if (!info) return { error: 'Unknown link' }
         const amount = round2((payment.amount_total || 0) / 100)
         let invoiceId = info.documentId

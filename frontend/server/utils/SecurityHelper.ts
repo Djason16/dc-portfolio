@@ -1,3 +1,4 @@
+// dc-scaffold: adapted (headers set on every page and answer by server/middleware/security.ts, with its own stricter rules; camera and microphone allowed on /room/ for the video room: the model's page CSP and Permissions-Policy are not used)
 /*
  * Security of the API, the same for every back end:
  *   SecurityHelper.headers(isHttps)                         headers to set on every answer (set by the middleware of the API)

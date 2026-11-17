@@ -111,8 +111,10 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', outside))
     transition: background-color var(--motion-fast) var(--ease), color var(--motion-fast) var(--ease), border-color var(--motion-fast) var(--ease);
 }
 
-.room-controls__btn:hover:not(:disabled) {
-    border-color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+    .room-controls__btn:hover:not(:disabled) {
+        border-color: var(--accent);
+    }
 }
 
 .room-controls__btn:focus-visible,
@@ -142,8 +144,10 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', outside))
     color: var(--zero-color);
 }
 
-.room-controls__btn--leave:hover:not(:disabled) {
-    border-color: var(--zero-color);
+@media (hover: hover) and (pointer: fine) {
+    .room-controls__btn--leave:hover:not(:disabled) {
+        border-color: var(--zero-color);
+    }
 }
 
 /* Unread messages, on the corner of the chat button */
@@ -190,8 +194,10 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', outside))
     cursor: pointer;
 }
 
-.room-controls__emoji:hover {
-    border-color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+    .room-controls__emoji:hover {
+        border-color: var(--accent);
+    }
 }
 
 /* Small phones: seven buttons on one line */

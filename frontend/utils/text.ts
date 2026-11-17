@@ -34,13 +34,13 @@ const injectVars = (txt: string, vars: Record<string, string>, t: (key: string, 
         return val
     }) || txt
 
-// Parses [label](url) Markdown links — runs after {{vars}} are injected
+// Parses [label](url) and [label](url "title") Markdown links — runs after {{vars}} are injected
 const parseMarkdownLinks = (txt: string) => {
     if (!txt) return txt
     return txt.replace(
-        /\[([^\]]+)\]\(((?:https?:\/\/|\/)[^\)]+)\)/g,
-        (_, label, href) => {
-            const title = escapeLabel(label)
+        /\[([^\]]+)\]\(((?:https?:\/\/|\/)[^\s)]+)(?:\s+"([^"]+)")?\)/g,
+        (_, label, href, linkTitle) => {
+            const title = linkTitle || escapeLabel(label)
             // A page of the site opens in the same tab, another site in a new one
             const target = href.startsWith('/') ? '' : ' target="_blank" rel="noopener noreferrer"'
             return `<a href="${href}"${target} title="${title}" aria-label="${title}" class="text-bold text-link">${label}</a>`

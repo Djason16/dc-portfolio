@@ -75,6 +75,10 @@ import CreateMissionModal from '@/components/views/Admin/CreateMissionModal.vue'
 import CreateProjectModal from '@/components/views/Admin/CreateProjectModal.vue'
 import EnvModal from '@/components/views/Admin/EnvModal.vue'
 import LoungeModal from '@/components/views/Admin/LoungeModal.vue'
+import LicensesModal from '@/components/views/Admin/LicensesModal.vue'
+import LicenseGiftModal from '@/components/views/Admin/LicenseGiftModal.vue'
+import LicensePricingModal from '@/components/views/Admin/LicensePricingModal.vue'
+import LicenseOfferModal from '@/components/views/Admin/LicenseOfferModal.vue'
 import SettingsModal from '@/components/views/Admin/SettingsModal.vue'
 import SkillsModal from '@/components/views/Admin/SkillsModal.vue'
 import TextsModal from '@/components/views/Admin/TextsModal.vue'
@@ -111,6 +115,10 @@ const TOOLS: Record<string, Tool> = {
     calendar: { icon: 'fas fa-calendar-alt', textKey: 'adminCalendar', component: CalendarModal },
     bookings: { icon: 'fas fa-calendar-check', textKey: 'adminBookings', component: BookingModal },
     lounge: { icon: 'fas fa-video', textKey: 'adminLounge', component: LoungeModal },
+    licenses: { opens: true, icon: 'fas fa-key', textKey: 'adminLicenses', component: LicensesModal },
+    license: { textKey: 'adminGiftLicense', component: LicenseGiftModal },
+    pricing: { opens: true, textKey: 'licensePricingButton', component: LicensePricingModal },
+    offer: { textKey: 'licenseNewOffer', component: LicenseOfferModal },
     unavailability: { icon: 'fas fa-calendar-times', textKey: 'adminUnavailability', component: UnavailabilityModal },
     override: { icon: 'fas fa-toggle-on', textKey: 'adminManualOverride', component: ManualOverrideModal },
     projects: { opens: true, icon: 'fas fa-folder-open', textKey: 'adminProjects', component: ProjectListModal },
@@ -124,7 +132,7 @@ const TOOLS: Record<string, Tool> = {
 
 // Cards of the dashboard, by task (code: prefix of the cards, TR-01...); the settings only when unfolded
 const GROUPS = [
-    { key: 'adminGroupWork', code: 'TR', tools: ['billing', 'clients', 'missions'] },
+    { key: 'adminGroupWork', code: 'TR', tools: ['billing', 'clients', 'missions', 'licenses'] },
     { key: 'adminGroupSite', code: 'SI', tools: ['projects', 'skills', 'texts', 'calendar', 'bookings', 'lounge', 'unavailability', 'override'] },
     { key: 'adminGroupSettings', code: 'RE', tools: ['settings', 'numbering', 'rates', 'password', 'env'], folded: true },
 ]
@@ -149,23 +157,24 @@ const refreshTodo = ref(0)
 // The longest word of the names of every card of tools
 const toolLetters = computed(() => longestWord(GROUPS.flatMap(group => group.tools.map(id => t(TOOLS[id]!.textKey)))))
 
-// Open tool, its props, the card it grows from, and the list to come back to when a form closes
+// Open tool, its props, the card it grows from, and the lists to come back to when a form closes
+// (a stack: Licences > Prices and offers > New offer comes back step by step)
 const active = ref<any>(null)
 const toolProps = shallowRef({})
-const returnTo = ref<any>(null)
+const returnTo = ref<string[]>([])
 const activeButton = ref<any>(null)
 const loggingOut = ref(false)
 
 const openTool = (id: string, e: Event, props = {}) => {
     activeButton.value = e?.currentTarget || null
-    returnTo.value = null
+    returnTo.value = []
     toolProps.value = props
     active.value = id
 }
 
 // A list opens its form (New / Edit): the list comes back when the form closes
 const openFrom = (from: string, id: string, props: Record<string, unknown> = {}) => {
-    returnTo.value = from
+    returnTo.value = [...returnTo.value, from]
     toolProps.value = props
     active.value = id
 }
@@ -173,8 +182,8 @@ const openFrom = (from: string, id: string, props: Record<string, unknown> = {})
 // Closing a form opened from a list goes back to the list; "saved" comes after "close": nothing more to do
 const closeTool = () => {
     if (!active.value) return
-    const back = returnTo.value
-    returnTo.value = null
+    const back = returnTo.value.at(-1) ?? null
+    returnTo.value = returnTo.value.slice(0, -1)
     toolProps.value = {}
     active.value = back
     if (!back) refreshTodo.value++
@@ -245,9 +254,14 @@ const adminSections = Array.from({ length: 5 }, (_, i) => ({ titleKey: `adminSec
     cursor: pointer;
 }
 
-.admin-settings-toggle:hover,
 .admin-settings-toggle:focus-visible {
     color: var(--fg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .admin-settings-toggle:hover {
+        color: var(--fg);
+    }
 }
 
 .login-buttons {

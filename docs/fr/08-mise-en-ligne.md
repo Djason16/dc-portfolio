@@ -52,6 +52,14 @@ Remplis ensuite **admin → Mes infos** (nom, contact, mentions légales, résea
 
 Toute la base tient dans un fichier SQL : les tables, leurs lignes et les images envoyées depuis l'admin (`dc_uploads`).
 
+**En ligne, tout seul** : **DC Sentinel**, l'outil privé de Djason CHERY, sauvegarde la base de production **chaque dimanche** par
+`POST https://djason-chery.dev/api/backup` (`frontend/server/api/backup.ts`, en-tête `X-Backup-Key`). Le site ne garde que l'empreinte SHA-256 de la clé
+(`BACKUP_KEY_SHA256` dans `.env.production` ; une clé différente par environnement, vide dans `.env.example` : seule la production est sauvegardée).
+Les copies (`.sql.gz`, les 10 plus récentes) sont rangées sur le Google Drive de Djason ; les images sont dans la base, elles en font donc partie.
+Pour en remettre une : la décompresser (7-Zip), puis phpMyAdmin du Manager → **Importer**, ou `npm run db:restore` plus bas.
+
+**À la main** (`start.bat` puis `K` / `O` ne servent qu'à la base locale) :
+
 | Action | Commande, dans `frontend/` |
 | ------ | --------------------- |
 | Sauvegarder la base locale | `npm run db:backup` |

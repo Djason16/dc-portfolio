@@ -31,7 +31,7 @@
 }
 
 /* Hover and keyboard: the photo fades in */
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .projects-grid .project-card__box:hover img,
     .projects-grid .project-card__box:hover::before {
         opacity: 1;

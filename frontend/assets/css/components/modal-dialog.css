@@ -168,7 +168,7 @@
     outline-offset: 2px;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .morph-modal .close-btn:hover {
         background: var(--accent);
         color: var(--ink-900);

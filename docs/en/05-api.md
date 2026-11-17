@@ -64,7 +64,7 @@ separate from the files of the site: a new deployment never touches it.
 - **Default rows and admin account**: `server/plugins/init-database.ts`, run on each start
 - **Images of the projects**: stored in the `dc_uploads` table (not as files), served by `/api/upload/images/{name}`. The admin sends them in WebP (1920 px at most) with a 640 px thumbnail for the grid of the home page (`thumb-{name}`, deleted with the photo); a photo sent before the thumbnails is shown in full
 - **Changing an existing table** needs its own `ALTER TABLE`: never drop or recreate a table that holds data
-- **Backups**: export from phpMyAdmin; online, Infomaniak also keeps automatic backups
+- **Backups**: online, DC Sentinel backs up the whole database every Sunday (images included, they are in `dc_uploads`) through `POST /api/backup` (`server/api/backup.ts`, see [Deployment](08-deployment.md#05--back-up-and-restore-the-database "Back up and restore the database")); Infomaniak also keeps automatic backups; locally, `start.bat` then `K` / `O`
 
 ## 04 — Every route
 
@@ -97,6 +97,7 @@ separate from the files of the site: a new deployment never touches it.
 | Booking rules | `GET /api/booking-settings`, `PUT /api/booking-settings` (`{ enabled, noticeHours, horizonDays, bufferMinutes, stepMinutes }`) |
 | Site texts | 🔓 `GET /api/texts`, `PUT /api/texts` (`{ lang, key, value }`, empty = original text) |
 | Stripe | 🔓 `GET /api/stripe/document?token=` (payment link), 🔓 `POST /api/stripe/webhook` (signed by Stripe), 🔓 `POST /api/stripe/create-checkout` (`{ token, email }` for a payment link), 🔓 `POST /api/stripe/create-subscription`, 🔓 `GET /api/stripe/check-payment`, 🔓 `GET /api/stripe/check-subscription`, 🔓 `GET /api/stripe/payment-result`, 🔓 `GET /api/stripe/subscription-result` |
+| Licences of the DC tools | 🔓 `POST /api/licenses/verify` (`{ key, product, machine, version }`, called by the tools), 🔓 `GET /api/licenses/min-version?product=`, 🔓 `POST /api/licenses/trial` (`{ email, product, lang }`, 14-day key, one per e-mail and offer), 🔓 `POST /api/licenses/support` (help request of a tool), 🔓 `GET /api/licenses/checkout?product=&interval=month\|year&lang=` (303 to Stripe), 🔓 `POST /api/licenses/status` (`{ key }` → tools, status, end of access, for the page `/licenses/manage/`), 🔓 `POST /api/licenses/portal` (`{ key, lang }` → Stripe customer portal URL), 🔓 `GET /api/licenses/thanks` and `GET` / `POST /api/licenses/manage` (old addresses, 301 to the pages `/licenses/thanks/` and `/licenses/manage/`), `GET` / `POST /api/licenses`, `PUT /api/licenses/{id}`, `POST /api/licenses/{id}/renew`, `GET` / `PUT /api/licenses/versions` |
 | Uploads | 🔓 `GET /api/upload/images/{file}` |
 
 ---

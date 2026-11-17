@@ -64,7 +64,7 @@ séparée des fichiers du site : une nouvelle mise en ligne n'y touche jamais.
 - **Lignes par défaut et compte admin** : `server/plugins/init-database.ts`, lancé à chaque démarrage
 - **Images des projets** : gardées dans la table `dc_uploads` (pas en fichiers), servies par `/api/upload/images/{name}`. L'admin les envoie en WebP (1920 px au plus) avec une miniature de 640 px pour la grille de l'accueil (`thumb-{name}`, supprimée avec la photo) ; une photo envoyée avant les miniatures s'affiche en entier
 - **Modifier une table existante** demande son propre `ALTER TABLE` : ne supprime ou ne recrée jamais une table qui contient des données
-- **Sauvegardes** : export depuis phpMyAdmin ; en ligne, Infomaniak garde aussi des sauvegardes automatiques
+- **Sauvegardes** : en ligne, DC Sentinel sauvegarde toute la base chaque dimanche (images comprises, elles sont dans `dc_uploads`) par `POST /api/backup` (`server/api/backup.ts`, voir [Mise en ligne](08-mise-en-ligne.md#05--sauvegarder-et-restaurer-la-base "Sauvegarder et restaurer la base")) ; Infomaniak garde aussi des sauvegardes automatiques ; en local, `start.bat` puis `K` / `O`
 
 ## 04 — Toutes les routes
 
@@ -97,6 +97,7 @@ séparée des fichiers du site : une nouvelle mise en ligne n'y touche jamais.
 | Règles des réservations | `GET /api/booking-settings`, `PUT /api/booking-settings` (`{ enabled, noticeHours, horizonDays, bufferMinutes, stepMinutes }`) |
 | Textes du site | 🔓 `GET /api/texts`, `PUT /api/texts` (`{ lang, key, value }`, vide = texte d'origine) |
 | Stripe | 🔓 `GET /api/stripe/document?token=` (lien de paiement), 🔓 `POST /api/stripe/webhook` (signé par Stripe), 🔓 `POST /api/stripe/create-checkout` (`{ token, email }` pour un lien de paiement), 🔓 `POST /api/stripe/create-subscription`, 🔓 `GET /api/stripe/check-payment`, 🔓 `GET /api/stripe/check-subscription`, 🔓 `GET /api/stripe/payment-result`, 🔓 `GET /api/stripe/subscription-result` |
+| Licences des outils DC | 🔓 `POST /api/licenses/verify` (`{ key, product, machine, version }`, appelé par les outils), 🔓 `GET /api/licenses/min-version?product=`, 🔓 `POST /api/licenses/trial` (`{ email, product, lang }`, clé de 14 jours, une par e-mail et par offre), 🔓 `POST /api/licenses/support` (demande d'aide d'un outil), 🔓 `GET /api/licenses/checkout?product=&interval=month\|year&lang=` (303 vers Stripe), 🔓 `POST /api/licenses/status` (`{ key }` → outils, état, fin d'accès, pour la page `/licenses/manage/`), 🔓 `POST /api/licenses/portal` (`{ key, lang }` → adresse du portail client Stripe), 🔓 `GET /api/licenses/thanks` et `GET` / `POST /api/licenses/manage` (anciennes adresses, 301 vers les pages `/licenses/thanks/` et `/licenses/manage/`), `GET` / `POST /api/licenses`, `PUT /api/licenses/{id}`, `POST /api/licenses/{id}/renew`, `GET` / `PUT /api/licenses/versions` |
 | Fichiers envoyés | 🔓 `GET /api/upload/images/{file}` |
 
 ---

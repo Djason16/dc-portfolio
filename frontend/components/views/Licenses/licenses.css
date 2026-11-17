@@ -1,0 +1,107 @@
+/* Pages of the DC tools licences (LicenseManage.vue, LicenseThanks.vue), in the look of the site: hairline panels
+   (cells parted by a 1px rule, like the figures of the admin), mint numbered labels, wide display titles */
+
+.license-form {
+    max-width: 560px;
+}
+
+.license-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+}
+
+/* The key: spaced capitals, easier to read back */
+.license-form__group :deep(.form-input__control) {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.license-form__group :deep(.form-input__control::placeholder) {
+    text-transform: none;
+}
+
+.license-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Hairline grid: one cell per fact or step, the same height in a row */
+.license-cells {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1px;
+    margin: 0 0 2.5rem;
+    padding: 0;
+    list-style: none;
+    background: var(--line);
+    border: 1px solid var(--line);
+}
+
+.license-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+    margin: 0;
+    padding: 1.5rem 1.4rem;
+    background: var(--ink-900);
+}
+
+.license-cell__value {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.license-cell__text {
+    margin: 0;
+    color: var(--fg-muted);
+}
+
+/* State of the key: mint when it opens the tools, red when it does not */
+.license-state--active {
+    color: var(--accent);
+}
+
+.license-state--expired,
+.license-state--revoked {
+    color: #ffb4a8;
+}
+
+/* Head of the result: label and end of the key on one line, the rule of the site under it */
+.license-result__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin: 0 0 1.5rem;
+}
+
+.license-result__key {
+    margin: 0;
+    color: var(--fg-muted);
+    letter-spacing: 0.08em;
+}
+
+/* A note on a mint mark, like the panels of the site */
+.license-note {
+    margin: 0 0 2rem;
+    padding: 1.1rem 1.4rem;
+    border-left: 2px solid var(--accent);
+    background: var(--panel);
+    color: var(--fg-muted);
+}
+
+@media (max-width: 480px) {
+    .license-cell {
+        padding: 1.25rem 1.1rem;
+    }
+
+    .license-buttons :deep(.custom-button) {
+        width: 100%;
+        justify-content: center;
+    }
+}

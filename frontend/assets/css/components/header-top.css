@@ -42,15 +42,24 @@
     gap: 2.25rem;
 }
 
-/* "Pay me" at the right edge, like the links */
+/* "Pay me" at the right edge, in mint, never a line: light under the mouse, and light on its own page
+   (aria-current="page", set by NuxtLink), where the mouse turns it back to mint */
 .header-top .header-top__pay {
     justify-self: end;
     color: var(--mint);
     transition: color var(--motion-fast) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
-    .header-top .header-top__pay:hover {
+.header-top .header-top__pay[aria-current="page"] {
+    color: var(--paper);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .header-top .header-top__pay[aria-current="page"]:hover {
+        color: var(--mint);
+    }
+
+    .header-top .header-top__pay:not([aria-current="page"]):hover {
         color: var(--paper);
     }
 }

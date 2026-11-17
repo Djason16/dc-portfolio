@@ -130,19 +130,21 @@ const duplicate = () => run(() => billing.duplicate(props.doc.id), true)
 // Online payment of an invoice with something left to pay (a quote has its link in its path: BillingFlow)
 const canPayOnline = computed(() => props.doc.type === 'invoice' && props.doc.status === 'final' && state.value.remaining > 0)
 const payUrl = computed(() => props.doc.payToken ? `${useRuntimeConfig().public.frontendDomain}/pay-me/?doc=${props.doc.payToken}` : '')
-// Makes the link the first time, then copies it to send it to the client
+// Makes the link the first time, then copies it to send it to the client: each copy makes it work 12 months from today
 const copyPayLink = async () => {
     emit('busy', true)
-    const res = props.doc.payToken ? { success: true } : await billing.payLink(props.doc.id)
+    const res = await billing.payLink(props.doc.id)
     emit('busy', false)
     if (!res.success) return showFailure(res.error || t('billError'))
+    const date = linkDate(res.until)
     try {
         await navigator.clipboard.writeText(payUrl.value || res.url)
-        showSuccess(t('payLinkCopied'))
+        showSuccess(t('payLinkCopiedUntil', { date }))
     } catch {
-        showSuccess(t('payLinkReady'))
+        showSuccess(t('payLinkReadyUntil', { date }))
     }
 }
+const linkDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(lang.current.value === 'fr' ? 'fr-FR' : 'en-GB', { dateStyle: 'long', timeZone: 'UTC' })
 
 // Sent to the client, the PDF attached; asked first (who gets it)
 const documentMail = useDocumentMail()

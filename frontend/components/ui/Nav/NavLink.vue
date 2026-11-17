@@ -1,7 +1,7 @@
 <template>
     <!-- Link of the header to a section of the home page (a real link: keyboard and search engines), highlighted while it is on screen -->
-    <a :href="`/#${id}`" :title="title" class="header-top__link text-label" :class="{ 'is-active': active }"
-        :aria-current="active ? 'true' : undefined" @click.prevent="handleClick">
+    <a :href="`/#${id}`" :title="title" class="header-top__link text-label"
+        :aria-current="active ? 'location' : undefined" @click.prevent="handleClick">
         <slot></slot>
     </a>
 </template>

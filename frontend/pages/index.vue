@@ -11,10 +11,11 @@ import Hero from '@/components/views/Index/Hero.vue'
 import LastProject from '@/components/views/Index/LastProject.vue'
 import Services from '@/components/views/Index/Services.vue'
 import Skills from '@/components/views/Index/Skills.vue'
+import Tools from '@/components/views/Index/Tools.vue'
 import { useSeo } from '@/composables/useSeo'
 
 // Ordered list of the home page sections (components/views/Index)
-const sections = [Hero, LastProject, AboutMe, Skills, Services, Contact]
+const sections = [Hero, LastProject, AboutMe, Skills, Services, Tools, Contact]
 
 // Title, description, Open Graph... updated when the language changes (utils/seo.js)
 useSeo('index')

@@ -19,6 +19,8 @@ export default {
         legalSection7Content: "Les informations présentes sur ce site sont fournies à titre indicatif et peuvent évoluer sans préavis. Je m'efforce de les maintenir exactes et à jour, sans pouvoir en garantir l'exhaustivité ni l'exactitude absolue. Ma responsabilité ne saurait être engagée pour tout dommage direct ou indirect résultant de l'utilisation de ce site.",
         legalSection8Title: "8. Droit applicable et attribution de juridiction",
         legalSection8Content: "Ce site et ses conditions d'utilisation sont soumis au droit français. En cas de litige découlant de l'utilisation de ce site ou de l'interprétation de ses mentions, et à défaut d'accord amiable, compétence exclusive est attribuée aux tribunaux compétents du siège social de l'éditeur.",
+        legalSection9Title: "9. Conception et développement",
+        legalSection9Content: "Ce site est conçu et développé par {{name}}, développeur web, avec [DC Scaffold](https://github.com/Djason16/dc-scaffold \"Voir DC Scaffold sur GitHub (nouvel onglet)\"), son outil de création de projets web.",
     },
     en: {
         legalTitle: "Legal Notice",
@@ -39,5 +41,7 @@ export default {
         legalSection7Content: "The information on this site is provided for informational purposes and may change without notice. I strive to keep it accurate and up to date, without being able to guarantee its completeness or absolute accuracy. I cannot be held liable for any direct or indirect damage resulting from the use of this site.",
         legalSection8Title: "8. Applicable Law and Jurisdiction",
         legalSection8Content: "This site and its terms of use are governed by French law. In the event of a dispute arising from the use of this site or the interpretation of these notices, and failing an amicable solution, exclusive jurisdiction is granted to the competent courts of the publisher's registered office.",
+        legalSection9Title: "9. Design and development",
+        legalSection9Content: "This website is designed and developed by {{name}}, web developer, with [DC Scaffold](https://github.com/Djason16/dc-scaffold \"View DC Scaffold on GitHub (new tab)\"), his own web project generator.",
     },
 }

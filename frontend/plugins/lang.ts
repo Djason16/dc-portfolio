@@ -13,6 +13,8 @@ const STORAGE_KEY = 'selectedLanguage'
 export default defineNuxtPlugin(() => {
     // Current language: the first one of LANGUAGES until the visitor changes it
     const current = ref<string>(LANGUAGES[0]!)
+    // Language given by the address (?lang=en, composables/useLangQuery.ts): wins over the one of a previous visit
+    let fromAddress = false
 
     const lang = {
         current,
@@ -29,9 +31,16 @@ export default defineNuxtPlugin(() => {
             if (remember) localStorage.setItem(STORAGE_KEY, code)
         },
 
-        // Language kept during a previous visit
+        // Language of the address of the page, kept over restore()
+        setFromAddress(code: string) {
+            if (!LANGUAGES.includes(code)) return
+            fromAddress = true
+            current.value = code
+        },
+
+        // Language kept during a previous visit (not when the address gives one)
         restore() {
-            lang.setLang(localStorage.getItem(STORAGE_KEY))
+            if (!fromAddress) lang.setLang(localStorage.getItem(STORAGE_KEY))
         },
     }
 

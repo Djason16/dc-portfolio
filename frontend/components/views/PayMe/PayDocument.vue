@@ -4,6 +4,15 @@
     <div class="pay-document">
         <div v-if="loading" class="pay-document__card is-loading text-body">{{ t('payDocLoading') }}</div>
 
+        <div v-else-if="expired" class="pay-document__card">
+            <p class="eyebrow">{{ t('payDocUnknownLabel') }}</p>
+            <p class="text-body">{{ t('payDocExpired') }}</p>
+            <p v-if="site.email" class="text-body-s">
+                {{ t('payDocExpiredContact') }}
+                <a :href="`mailto:${site.email}`" :title="t('payDocExpiredMail', { email: site.email })">{{ site.email }}</a>
+            </p>
+        </div>
+
         <div v-else-if="!doc" class="pay-document__card">
             <p class="eyebrow">{{ t('payDocUnknownLabel') }}</p>
             <p class="text-body">{{ t('payDocUnknown') }}</p>
@@ -87,6 +96,8 @@ const email = ref('')
 // The client agrees to the automatic debit of the next steps (ticked by them, never by default)
 const autopay = ref(false)
 const site = useSite()
+// The link is past its last day (410 of the server): the page asks for a new one
+const expired = ref(false)
 
 const money = (value: any) => new Intl.NumberFormat(lang.current.value === 'fr' ? 'fr-FR' : 'en-GB', { style: 'currency', currency: doc.value?.currency || 'EUR' }).format(Number(value) || 0)
 // What the amount is: what is left on an invoice, the deposit / installment / whole of a quote
@@ -95,6 +106,7 @@ const amountKey = computed(() => doc.value?.type === 'invoice' ? 'payDocRemainin
 const load = async () => {
     const res = await api.get(`/stripe/document?token=${encodeURIComponent(props.token)}`)
     doc.value = res.success ? res.document : null
+    expired.value = res.status === 410
     if (doc.value && !email.value) email.value = doc.value.email || ''
     loading.value = false
 }
@@ -109,6 +121,10 @@ const download = async () => {
     downloading.value = true
     try {
         const res = await api.get(`/stripe/document-file?token=${encodeURIComponent(props.token)}`)
+        if (res.status === 410) {
+            expired.value = true
+            doc.value = null
+        }
         if (!res.success) throw new Error('unknown')
         const [{ pdfOptions }, { exportPdf }] = await Promise.all([import('@/utils/documentPdf'), import('@/utils/pdf')])
         await exportPdf(pdfOptions(res.document, {}, res.bank || {}))
@@ -126,6 +142,11 @@ const pay = async () => {
     const session = await api.post('/stripe/create-checkout', { token: props.token, email: email.value, autopay: autopay.value, language: lang.current.value })
     if (!session.success || !session.url) {
         paying.value = false
+        if (session.status === 410) {
+            expired.value = true
+            doc.value = null
+            return
+        }
         return showMessage('error', session.error === 'payLinkNothing' ? 'payDocPaid' : 'checkoutError', 0)
     }
     const popup = window.open(session.url, 'Stripe Checkout', 'width=500,height=700,resizable,scrollbars=yes,status=1')

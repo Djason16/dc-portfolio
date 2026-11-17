@@ -48,15 +48,15 @@ frontend/
 
 | Category | Technology | Version |
 | -------- | ---------- | ------- |
-| Framework | Nuxt 4 (Vue 3) | 4.4.8 / 3.5.38 |
+| Framework | Nuxt 4 (Vue 3) | 4.6.4 / 3.5.45 |
 | Server | Nitro | built into Nuxt |
-| State | Pinia | 3.0.4 |
+| State | Pinia | 4.1.0 |
 | Styles | CSS 3, v-reveal directive (plugins/reveal.ts), @fontsource (Archivo, Barlow Condensed) | |
-| Icons | Font Awesome | 7.2.0 |
-| SEO | @nuxtjs/sitemap 8, @nuxtjs/robots 6 | |
-| Payments | Stripe API | 22.2.1 |
-| Database | MySQL (mysql2), phpMyAdmin | 8.4 locally (Docker) |
-| Email | Nodemailer | 9.0.3 |
+| Icons | Font Awesome | 7.3.1 |
+| SEO | @nuxtjs/sitemap 9, @nuxtjs/robots 7 | |
+| Payments | Stripe API | 22.6.2 |
+| Database | MySQL (mysql2), phpMyAdmin | 9.7 locally (Docker) |
+| Email | Nodemailer | 10.5.0 |
 | Hosting | Infomaniak | |
 
 ## 03 — Conventions

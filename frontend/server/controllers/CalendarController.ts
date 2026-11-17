@@ -16,10 +16,9 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 // 'YYYY-MM-DD' whatever the driver returns (string or Date)
 const toDateStr = (d: unknown) => (d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10))
 
-// Database row -> JSON sent to the site (camelCase)
+// Database row -> JSON sent to the site (camelCase); public, so no internal account id (user_id)
 const toSettings = (row: Record<string, any>) => ({
     id: row.id,
-    userId: row.user_id,
     timezone: row.timezone,
     schedule: row.schedule ? JSON.parse(row.schedule) : {},
     createdAt: row.created_at,

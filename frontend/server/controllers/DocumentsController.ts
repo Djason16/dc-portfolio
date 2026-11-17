@@ -12,7 +12,7 @@ import type { H3Event } from 'h3'
  *   POST   /api/documents/{id}/invoice          { stepKey, label? } draft invoice of a step of the payment plan of a quote
  *   POST   /api/documents/{id}/contract         { serviceType, interestRate } draft contract of a quote
  *   POST   /api/documents/{id}/payments         { date, amount, method, note } a payment received
- *   POST   /api/documents/{id}/pay-link         its payment link (Pay me page, by card): { token, url }
+ *   POST   /api/documents/{id}/pay-link         its payment link (Pay me page, by card): { token, url, until }, then works 12 months from now
  *   POST   /api/documents/{id}/autopay-stop     turns off the automatic debit of a quote (AutopayHelper)
  *   POST   /api/documents/{id}/send             { kind: 'documents' | 'paid', files: [{ name, pdf }], with: [ids] } by email,
  *                                                the PDF drawn by the admin attached (DocumentMailHelper)
@@ -104,7 +104,7 @@ export default class DocumentsController extends Controller {
     async payLink(event: H3Event, args: RouteArgs) {
         const res = await PayLinkHelper.link(args.id)
         if (res.error) return ResponseHelper.error(event, res.error, res.status || 400, 'DOCUMENT_ERROR')
-        return ResponseHelper.success(event, { token: res.token, url: `${useRuntimeConfig().public.frontendDomain}/pay-me/?doc=${res.token}` })
+        return ResponseHelper.success(event, { token: res.token, until: res.until, url: `${useRuntimeConfig().public.frontendDomain}/pay-me/?doc=${res.token}` })
     }
 
     async send(event: H3Event, args: RouteArgs) {

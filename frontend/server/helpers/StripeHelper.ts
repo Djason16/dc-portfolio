@@ -274,6 +274,8 @@ const getSubscriptionStatus = async (sessionId: string) => {
 }
 
 export const StripeHelper = {
+    /** The Stripe client of the site (licences of the DC tools: LicenseStripe.ts). */
+    client: getStripeInstance,
     validateCheckout: validateCheckoutData,
     validateSubscription: validateSubscriptionData,
     validateSessionId,

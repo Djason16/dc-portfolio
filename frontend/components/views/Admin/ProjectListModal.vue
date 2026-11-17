@@ -134,9 +134,11 @@ watch(() => props.show, val => val && fetchProjects().then(completeSquares), { i
     transition: background-color var(--motion-fast) var(--ease), box-shadow var(--motion-fast) var(--ease);
 }
 
-.project-row:hover {
-    background-color: rgba(255, 255, 255, 0.035);
-    box-shadow: inset 2px 0 0 var(--mint);
+@media (hover: hover) and (pointer: fine) {
+    .project-row:hover {
+        background-color: rgba(255, 255, 255, 0.035);
+        box-shadow: inset 2px 0 0 var(--mint);
+    }
 }
 
 .project-row__index {

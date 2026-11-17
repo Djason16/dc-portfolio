@@ -1,0 +1,103 @@
+/* Home page: "My tools" (components/views/Index/Tools.vue), an editorial index: one full-width row per tool, its name
+   very large in Archivo; with a mouse, the row lights up (the name slides, turns mint, the arrow comes forward) */
+.tools-index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+}
+
+.tools-index .tools-index__item {
+    border-bottom: 1px solid var(--line);
+}
+
+.tools-index .tools-index__link {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 20rem) 3rem;
+    align-items: center;
+    gap: 2rem;
+    padding: clamp(1.5rem, 3vw, 2.75rem) 0;
+    color: var(--fg);
+    text-decoration: none;
+}
+
+.tools-index .tools-index__number {
+    color: var(--fg-muted);
+}
+
+.tools-index .tools-index__name {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    min-width: 0;
+    transition: transform var(--motion-base) var(--ease);
+}
+
+.tools-index .tools-index__brand {
+    color: var(--accent);
+}
+
+.tools-index .tools-index__title {
+    white-space: nowrap;
+    transition: color var(--motion-base) var(--ease);
+}
+
+.tools-index .tools-index__text {
+    margin: 0;
+    color: var(--fg-muted);
+}
+
+.tools-index .tools-index__arrow {
+    justify-self: end;
+    font-size: 2rem;
+    color: var(--accent);
+    opacity: 0.35;
+    transition: opacity var(--motion-base) var(--ease), transform var(--motion-base) var(--ease);
+}
+
+.tools-section__all {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.tools-section__note {
+    margin: 0;
+    color: var(--fg-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .tools-index .tools-index__link:hover .tools-index__name {
+        transform: translateX(1.25rem);
+    }
+
+    .tools-index .tools-index__link:hover .tools-index__title {
+        color: var(--accent);
+    }
+
+    .tools-index .tools-index__link:hover .tools-index__arrow {
+        opacity: 1;
+        transform: translateX(0.5rem);
+    }
+}
+
+/* Tablet and phone: the number and the name on a line, the text under them */
+@media (max-width: 900px) {
+    .tools-index .tools-index__link {
+        grid-template-columns: 2.5rem minmax(0, 1fr) 2rem;
+        gap: 0.75rem 1rem;
+    }
+
+    .tools-index .tools-index__text {
+        grid-column: 2 / 4;
+    }
+
+    .tools-index .tools-index__arrow {
+        grid-column: 3;
+        grid-row: 1;
+        font-size: 1.5rem;
+    }
+}

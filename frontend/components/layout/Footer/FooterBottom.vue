@@ -79,6 +79,7 @@ const sections = [
     { id: 'about-me', translationKey: 'aboutMe' },
     { id: 'skills', translationKey: 'skillsTitle' },
     { id: 'services', translationKey: 'servicesTitle' },
+    { id: 'tools', translationKey: 'toolsLabel' },
     { id: 'contact', translationKey: 'contactLabel' },
 ]
 
@@ -91,6 +92,8 @@ const socials = computed(() => [
     { label: 'GitHub', link: site.github },
     { label: 'Malt', link: site.malt },
     { label: 'Instagram', link: site.instagram },
+    { label: 'TikTok', link: site.tiktok },
+    { label: 'Facebook', link: site.facebook },
     { label: 'WhatsApp', link: site.whatsapp },
 ].filter(social => social.link))
 
@@ -168,10 +171,25 @@ const legalLinks = [
     transition: color var(--motion-fast) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .footer-column a:hover,
     .footer-column .footer-link:hover {
         color: var(--paper);
+    }
+}
+
+/* Link of the page shown (aria-current="page", set by NuxtLink): the hover color of the footer, in bold */
+.footer-column a[aria-current="page"],
+.footer-bar__links a[aria-current="page"] {
+    color: var(--paper);
+    font-weight: 700;
+}
+
+/* It still answers the mouse: mint */
+@media (hover: hover) and (pointer: fine) {
+    .footer-column a[aria-current="page"]:hover,
+    .footer-bar__links a[aria-current="page"]:hover {
+        color: var(--mint);
     }
 }
 
@@ -210,7 +228,7 @@ const legalLinks = [
     transition: color var(--motion-fast) var(--ease);
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .footer-bar__links a:hover,
     .footer-bar__links .footer-link:hover {
         color: var(--paper);

@@ -118,6 +118,22 @@ Ses articles sont dans `components/views/Documents/ContractContainer/` (style `c
 un taux par semestre, professionnel et particulier). L'éditeur l'affiche et prévient quand le taux du semestre manque ;
 le PDF imprime les pénalités (trois fois le taux légal). Le taux reste attaché au document une fois finalisé.
 
+## 06 bis — Licences des outils DC (admin → Travail → Licences DC)
+
+DC Scaffold, DC Prospect et DC Sentinel (vendus sur https://tools.djason-chery.dev/) vérifient leur clé Pro auprès de ce site.
+
+- **Payées :** les boutons du site des outils ouvrent `/api/licenses/checkout`, une page d'abonnement Stripe (coupon de lancement -30 % pour les 50 premiers de chaque outil, tant qu'il en reste). Après le paiement, le webhook Stripe crée la clé et l'envoie par e-mail ; les renouvellements et résiliations déplacent sa fin d'accès (`LicenseStripe.ts`).
+- **Offertes :** *Offrir une clé* : e-mail, outils, 1 mois / 3 mois / 1 an / à vie, une note ; la clé part par e-mail et s'affiche une fois.
+- **Liste :** statut (active / révoquée), fin d'accès, outils et note se changent dans le tableau ; *Nouvelle clé* remplace une clé perdue (l'ancienne s'arrête aussitôt).
+- **Versions minimales :** les versions plus anciennes d'un outil affichent « Mise à jour obligatoire ».
+- **Réglage Stripe :** `node scripts/stripe-licenses.mjs .env` (test) ou `.env.production` (réel) crée les produits, les prix (clés `dc_<outil>_<month|year>`), les coupons de lancement et le portail client. Rien à ajouter dans les fichiers `.env`.
+- **Essai gratuit :** `POST /api/licenses/trial` envoie une clé de 14 jours (une par e-mail et par offre, table `dc_license_trials`) ; elle apparaît dans la liste comme une clé offerte avec la note « Essai 14 jours ».
+- **Pack DC complet :** `product=bundle` (29 € par mois, 290 € par an) : une seule clé pour les trois outils.
+- **Demandes d'aide :** `POST /api/licenses/support` transmet la demande d'aide d'un outil à l'e-mail du propriétaire (réponse directe à l'utilisateur).
+- **Changer un prix ou créer une offre depuis l'admin :** Licences DC → *Prix et offres* : cliquer un prix pour le changer (nouveau prix Stripe pour les nouveaux clients, les abonnés gardent le leur), *Nouvelle offre* (outil, réduction, durée, places, date de fin, textes FR / EN), *Arrêter l'offre*.
+- **Prix et offres (sans republier le site des outils) :** les prix sont ceux de Stripe (clés `dc_<outil>_<month|year>`). Une offre = un coupon Stripe avec les métadonnées `dc_product` (`scaffold`, `prospect`, `sentinel`, `bundle` ou `all`), `dc_label_fr` et `dc_label_en` ; le paiement applique la meilleure offre en cours, et `GET /api/licenses/sales` la donne au site des outils (lu toutes les 5 minutes). Une offre s'arrête toute seule à sa dernière utilisation (nombre max.), à sa date de fin ou quand le coupon est supprimé.
+- La clé n'est jamais gardée en clair (SHA-256 + ses 5 dernières lettres).
+
 ## 07 — Modifier un modèle
 
 Modifie librement les composants de `components/views/Documents/`, mais **garde leurs classes CSS** :

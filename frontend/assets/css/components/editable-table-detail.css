@@ -94,7 +94,7 @@
     text-transform: uppercase;
 }
 
-@media (hover: hover) and (min-width: 1025px) {
+@media (hover: hover) and (pointer: fine) {
     .editable-table-wrapper .table-detail__cell.is-editable:hover .cell-edit-icon {
         opacity: 1;
     }

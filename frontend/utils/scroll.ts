@@ -22,17 +22,20 @@ export const scrollToSection = (id: string) => {
 }
 
 // Resolves once the test is true, checked at every frame (false after the timeout)
-const waitFor = (test: () => unknown, timeout = 4000) => new Promise(resolve => {
+export const waitFor = (test: () => unknown, timeout = 4000) => new Promise(resolve => {
     const start = performance.now()
     const tick = () => test() ? resolve(true) : performance.now() - start > timeout ? resolve(false) : requestAnimationFrame(tick)
     tick()
 })
 
+// True while the change of page fades (out-in): the old page is still there, the new one not yet
+export const pageChanging = () => !!document.querySelector('.page-leave-active, .page-enter-active')
+
 // From another page: the home page opens, its change of page fades (out-in), only then is its section there to scroll to
 export const goToSection = async (router: Router, id: string) => {
     if (router.currentRoute.value.path !== '/') {
         await router.push('/')
-        await waitFor(() => document.getElementById(id) && !document.querySelector('.page-leave-active, .page-enter-active'))
+        await waitFor(() => document.getElementById(id) && !pageChanging())
     }
     scrollToSection(id)
 }

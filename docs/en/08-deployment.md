@@ -52,6 +52,14 @@ Then fill in **admin → My info** (name, contact, legal details, social links).
 
 The whole database fits in one SQL file: the tables, their rows and the images uploaded from the admin (`dc_uploads`).
 
+**Online, automatic**: **DC Sentinel**, the private tool of Djason CHERY, backs up the production database **every Sunday** through
+`POST https://djason-chery.dev/api/backup` (`frontend/server/api/backup.ts`, `X-Backup-Key` header). The site only keeps the SHA-256 of the key
+(`BACKUP_KEY_SHA256` in `.env.production`; a different key per environment, empty in `.env.example`: only production is backed up).
+The copies (`.sql.gz`, the 10 newest) are kept on Djason's Google Drive; the images are in the database, so they are part of it.
+To restore one: unzip it (7-Zip), then phpMyAdmin from the Manager → **Import**, or `npm run db:restore` below.
+
+**By hand** (`start.bat` then `K` / `O` only work on the local database):
+
 | Action | Command, in `frontend/` |
 | ------ | ------------------ |
 | Back up the local database | `npm run db:backup` |

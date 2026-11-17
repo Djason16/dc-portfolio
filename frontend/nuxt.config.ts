@@ -4,8 +4,9 @@ import { defineNuxtConfig } from 'nuxt/config';
 import { envFilePath } from './server/helpers/EnvHelper';
 import { TRAILING_SLASH_ENABLED } from './utils/pathHelpers';
 
-// Private pages: out of sitemap.xml and closed to crawlers in robots.txt (admin, login, new password, the video rooms of the bookings and the personal room /room/)
-const privateRoutes: string[] = ['/admin', '/login', '/reset-password', '/room']
+// Private pages: out of sitemap.xml and closed to crawlers in robots.txt (admin, login, new password, the video rooms of the bookings,
+// the personal room /room/ and the pages of the DC tools licences /licenses/)
+const privateRoutes: string[] = ['/admin', '/login', '/reset-password', '/room', '/licenses']
 
 // Environment file of the mode: .env in development, .env.production in production.
 // For the build, .env.production wins over anything already read (Nuxt reads .env by itself first): the values of the server
@@ -107,6 +108,8 @@ export default defineNuxtConfig({
       // Video room of a booking (its link is a secret) and the personal room /room/: never kept by a cache nor indexed
       '/room': { ssr: true, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'X-Robots-Tag': 'noindex, nofollow' } },
       '/room/**': { ssr: true, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'X-Robots-Tag': 'noindex, nofollow' } },
+      // Pages of the DC tools licences (a key is typed there): never kept by a cache nor indexed
+      '/licenses/**': { ssr: true, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } },
       '/api/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
       '/': { ssr: true, headers: { 'Cache-Control': 'public, max-age=600, s-maxage=3600' } },
       '/pay-me': { ssr: true, headers: { 'Cache-Control': 'public, max-age=600, s-maxage=3600' } },
@@ -174,6 +177,8 @@ export default defineNuxtConfig({
     turnCredential: process.env.TURN_CREDENTIAL,
     // Shared secret of the relay (coturn "static-auth-secret"): TURN accesses made per call, expiring (better than the two above)
     turnSecret: process.env.TURN_SECRET,
+    // SHA-256 (hex) of the key of DC Sentinel, the weekly backup POST /api/backup (server/helpers/BackupHelper.ts); empty: backup off
+    backupKeySha256: process.env.BACKUP_KEY_SHA256 || '',
     public: {
       frontendDomain: process.env.NUXT_PUBLIC_FRONTEND_DOMAIN,
     },

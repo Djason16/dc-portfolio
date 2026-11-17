@@ -53,7 +53,7 @@ export type BillingDocument = {
     lines: BillingLine[], discountType: 'percent' | 'amount' | null, discountValue: number, paymentPlan: PaymentPlan
     deductions: { number?: string, amount: number }[], notes: string, options: DocumentOptions
     totalHT: number, totalTVA: number, totalTTC: number, netToPay: number
-    finalizedAt: string | null, createdAt: string, payToken: string, payments: Payment[]
+    finalizedAt: string | null, createdAt: string, payToken: string, payUntil: string, payments: Payment[]
 }
 // What documentTotals() reads
 export type TotalsInput = { lines?: BillingLine[], discountType?: 'percent' | 'amount' | null, discountValue?: number, deductions?: { number?: string, amount: number }[] }
@@ -144,6 +144,15 @@ export const planSteps = (plan: PaymentPlan = {}, total = 0, issueDate = ''): Pl
 }
 
 // Paid and remaining of a document, and its state in the list
+// The payment link of a document (Pay me page) works PAY_LINK_MONTHS months after its last date (issue, due date, last step
+// of a quote), or until payUntil when later: each time the link is given (admin copy, an email), it works 12 months from that day
+export const PAY_LINK_MONTHS = 12
+export const payLinkUntil = (doc: Pick<BillingDocument, 'issueDate' | 'dueDate' | 'paymentPlan'> & { payUntil?: string }) => {
+    const dates = [doc.issueDate, doc.dueDate, ...planSteps(doc.paymentPlan, 0, doc.issueDate).map(step => step.dueDate)].filter(Boolean).sort()
+    const fromDates = dates.length ? addMonths(dates[dates.length - 1]!, PAY_LINK_MONTHS) : ''
+    return [fromDates, doc.payUntil || ''].sort()[1] || fromDates
+}
+
 export const paymentState = (doc: { payments?: { amount: number }[], status?: string, type?: string, dueDate?: string, validUntil?: string } = {}, netToPay = 0, today = todayIso()) => {
     const paid = round2((doc.payments || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0))
     const remaining = round2(Math.max(netToPay - paid, 0))

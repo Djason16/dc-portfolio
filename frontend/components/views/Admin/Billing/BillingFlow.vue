@@ -198,16 +198,17 @@ const refuse = async () => {
     if (await showConfirm(t('flowRefuseConfirm'))) run(() => billing.setStatus(props.doc.id, 'refused'))
 }
 
-// The payment link of the quote: it always shows the next step to pay
+// The payment link of the quote: it always shows the next step to pay; each copy makes it work 12 months from today
 const copyLink = async () => {
     emit('busy', true)
-    const res = props.doc.payToken ? { success: true } : await billing.payLink(props.doc.id)
+    const res = await billing.payLink(props.doc.id)
     emit('busy', false)
     if (!res.success) return showFailure(res.error || t('billError'))
-    const url = `${useRuntimeConfig().public.frontendDomain}/pay-me/?doc=${props.doc.payToken || res.token}`
+    const url = `${useRuntimeConfig().public.frontendDomain}/pay-me/?doc=${res.token}`
+    const date = new Date(`${res.until}T12:00:00Z`).toLocaleDateString(lang.current.value === 'fr' ? 'fr-FR' : 'en-GB', { dateStyle: 'long', timeZone: 'UTC' })
     try {
         await navigator.clipboard.writeText(url)
-        showSuccess(t('payLinkCopied'))
+        showSuccess(t('payLinkCopiedUntil', { date }))
     } catch {
         showSuccess(url)
     }
