@@ -5,7 +5,7 @@
 **DOC-02** &nbsp;·&nbsp; [← Documentation](README.md)
 
 Les réglages sont dans des fichiers `.env` dans `frontend/` : seulement ce qui est **secret ou technique** (base de données, Stripe, SMTP, compte admin, banque, adresse du site).
-Ton nom, ton contact, tes mentions légales et tes réseaux sociaux se modifient dans **admin → Mes infos** (gardés dans la base, appliqués tout de suite).
+Ton nom, ton contact, tes mentions légales et tes réseaux sociaux (une liste ordonnée : LinkedIn, YouTube, Vimeo… ou tout autre site) se modifient dans **admin → Mes infos** (gardés dans la base, appliqués tout de suite).
 Les textes vus par les visiteurs (accueil, pages légales, bandeau cookies, SEO, page Payez-moi, et les textes imprimés sur les devis, factures et contrats) se modifient dans **admin → Textes du site** : le site change tout de suite, sans nouveau build.
 
 Pars de l'exemple :
@@ -45,6 +45,11 @@ cp .env.example .env
 | `STRIPE_WEBHOOK_SECRET` | Secret de signature du webhook `/api/stripe/webhook` (`whsec_...`) : donné par `stripe listen` en local, par le Dashboard en ligne |
 | **Banque** (serveur uniquement, jamais envoyée au navigateur) | |
 | `BANK_IBAN`, `BANK_BIC` | Imprimés sur les factures et contrats |
+| **Facturation électronique** (Super PDP, serveur seulement) | Admin → Facturation électronique. L'API est coupée par défaut (mode manuel : rien n'est envoyé ni facturé) |
+| `SUPERPDP_API_URL` | `https://api.superpdp.tech` (une seule adresse pour le bac à sable et la production) |
+| `SUPERPDP_ENV` | `sandbox` (par défaut, en local et en qualif) ou `production` (en ligne) : rien n'est envoyé si l'entreprise des identifiants n'est pas dans cet environnement |
+| `SUPERPDP_CLIENT_ID`, `SUPERPDP_CLIENT_SECRET` | Application OAuth2 du compte Super PDP (une entreprise de test comme « Burger Queen », ou la vraie). Vides : mode manuel seulement |
+| `SUPERPDP_MOCK` | `true` : une plateforme fictive en mémoire (tests sans compte) ; vide en ligne |
 | **Traduction** (MyMemory, gratuit, sans clé) | |
 | `MYMEMORY_EMAIL` | Facultatif. Vide : environ 5 000 caractères traduits par jour ; un e-mail : environ 50 000 |
 | `GOOGLE_MAPS_API_KEY` | Clé de l'API Google Geocoding (côté serveur) : la région d'une adresse hors de France, affichée sur le site au lieu de la ville. En France : le service public geo.api.gouv.fr. Vide : le pays seulement |

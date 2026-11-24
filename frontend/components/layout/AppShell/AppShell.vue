@@ -40,7 +40,7 @@ import PreferencesBanner from '@/components/ui/PreferencesBanner/PreferencesBann
 import { useUserPreferencesStore } from '@/stores/userPreferences'
 // The three fonts the loader waits for (below), asked for at once with the page instead of after the CSS: the loader
 // ends sooner, it does not change otherwise
-import archivoFont from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url'
+import archivoFont from '@/assets/fonts/archivo/archivo-expanded-600-latin.woff2?url'
 import barlowLightFont from '@fontsource/barlow-condensed/files/barlow-condensed-latin-300-normal.woff2?url'
 import barlowSemiBoldFont from '@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2?url'
 
@@ -93,7 +93,7 @@ onMounted(async () => {
         Promise.all([
             document.fonts.load('300 16px "Barlow Condensed"'),
             document.fonts.load('600 16px "Barlow Condensed"'),
-            document.fonts.load('600 16px "Archivo Variable"')
+            document.fonts.load('expanded 600 16px "Archivo Expanded"')
         ]).catch(err => console.warn('Fonts failed to load:', err)),
         new Promise(resolve => setTimeout(resolve, 2000)),
     ])

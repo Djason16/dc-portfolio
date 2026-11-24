@@ -4,13 +4,23 @@
  *   SecurityHelper.headers(isHttps)                         headers to set on every answer (set by the middleware of the API)
  *   SecurityHelper.tooMany('contact', ip, 5, 600)           true after 5 tries in 10 minutes (contact form, logins...)
  *   SecurityHelper.hit(`login:${email}`, ip, 900) / clear()  counts a failed login / a good login starts again from zero
- *   SecurityHelper.ip(forwardedFor, remoteAddress)          address of the visitor: the LAST entry of X-Forwarded-For
+ *   SecurityHelper.ip(forwardedFor, remoteAddress)          address of the visitor: the LAST entry of X-Forwarded-For, only when
+ *                                                           the socket is a proxy (loopback or private address), else the socket
  *   SecurityHelper.fileType(buffer)                         real type of a file sent ("image/png"...), read in its first bytes
  *   SecurityHelper.tooLong(data, { name: 100, message: 5000 }) error message when a text is too long, else null
  * The counters stay in memory: they start again from zero when the server restarts; those untouched for a day are removed.
  */
 
 const tries = new Map<string, number[]>()
+
+// A proxy in front of the server (Apache on the same machine, Docker network): loopback or private address, or no address at
+// all (a pipe or a Unix socket, local only). Anyone else could write X-Forwarded-For himself to get past the attempt limits
+const isProxy = (address: string) => {
+    const ip = address.replace(/^::ffff:/i, '').toLowerCase()
+    if (ip === '::1' || /^(fc|fd|fe80:)/.test(ip)) return true
+    const [a = -1, b = -1] = ip.split('.').map(Number)
+    return a === 127 || a === 10 || (a === 192 && b === 168) || (a === 172 && b >= 16 && b <= 31)
+}
 
 // Signatures of the first bytes of the files accepted (offset in the file, bytes)
 const SIGNATURES = [
@@ -46,8 +56,10 @@ export const SecurityHelper = {
     },
 
     ip(forwardedFor: string | string[] | undefined | null, remoteAddress: string | undefined | null) {
+        const socket = String(remoteAddress ?? '').trim()
+        if (socket && !isProxy(socket)) return socket
         const list = String([forwardedFor ?? ''].flat().join(',')).split(',').map((part) => part.trim()).filter(Boolean)
-        return list.at(-1) ?? remoteAddress ?? 'local'
+        return list.at(-1) ?? (socket || 'local')
     },
 
     tooMany(key: string, ip: string, max: number, seconds: number, count = true) {

@@ -1,0 +1,75 @@
+/* Entrance animations of the « Mes outils » index (index, wipe) and of the skill cards (unfold), used with v-reveal:
+   kept apart from reveal.css (files under 300 lines), loaded right after it */
+/* A row of the editorial index (My tools): the number drops in, the name is uncovered from the left (a curtain),
+   then the text fades in and the arrow slides forward */
+.reveal--index > * > * {
+    opacity: 0;
+    transition: opacity var(--reveal-leave-duration) var(--ease), transform var(--reveal-leave-duration) var(--ease),
+        clip-path var(--reveal-leave-duration) var(--ease);
+}
+
+.reveal--index > * > :nth-child(1) { transform: translate3d(0, -0.8rem, 0); }
+.reveal--index > * > :nth-child(2) { opacity: 1; clip-path: inset(0 100% 0 0); }
+.reveal--index > * > :nth-child(4) { transform: translate3d(-1.5rem, 0, 0); }
+
+.reveal--index.is-revealed > * > * {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+    transition-duration: var(--reveal-duration), var(--reveal-duration), 1.1s;
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal--index.is-revealed > * > :nth-child(2) { transition-delay: calc(var(--reveal-delay, 0ms) + 120ms); }
+.reveal--index.is-revealed > * > :nth-child(3) { transition-delay: calc(var(--reveal-delay, 0ms) + 550ms); }
+.reveal--index.is-revealed > * > :nth-child(4) { transition-delay: calc(var(--reveal-delay, 0ms) + 750ms); }
+
+/* Its header: each part uncovered from the left, one after the other */
+.reveal--wipe > *,
+.reveal--wipe > * > * {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path var(--reveal-leave-duration) var(--ease);
+}
+
+.reveal--wipe.is-revealed > *,
+.reveal--wipe.is-revealed > * > * {
+    clip-path: inset(0 0 0 0);
+    transition-duration: 1.1s;
+}
+
+.reveal--wipe.is-revealed > * > :nth-child(2) { transition-delay: 150ms; }
+.reveal--wipe.is-revealed > :nth-child(2) { transition-delay: 350ms; }
+
+/* A card unfolding from its top edge (the skills) */
+.reveal--unfold {
+    opacity: 0;
+    transform: perspective(600px) rotateX(-55deg);
+    transform-origin: top;
+}
+
+.reveal--unfold.is-revealed {
+    opacity: 1;
+    transform: none;
+    transition: opacity var(--reveal-duration) var(--ease), transform 1s var(--ease);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Once in place (is-settled, plugins/reveal.ts): no entrance delay any more, a hover answers at once (the nth-child
+   delays above are more specific than the hover transitions of the sections, hence !important) */
+.reveal.is-settled,
+.reveal.is-settled > *,
+.reveal.is-settled > * > * {
+    transition-delay: 0s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal--index > * > *,
+    .reveal--wipe > *,
+    .reveal--wipe > * > *,
+    .reveal--unfold {
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+        transition: none !important;
+    }
+}

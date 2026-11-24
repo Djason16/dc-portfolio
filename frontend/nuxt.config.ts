@@ -34,14 +34,18 @@ export default defineNuxtConfig({
   ssr: true,
   devtools: { enabled: isDev },
   compatibilityDate: '2024-11-01',
-  // Fonts served by the site itself (no request to Google): Archivo in its expanded width (like the logo) for the titles,
+  // Fonts served by the site itself (no request to Google): Archivo in its expanded width (like the logo) for the titles
+  // (base/fonts.css: the expanded semi bold alone, made by scripts/fonts.mjs; the variable font for any other width),
   // Barlow Condensed for the texts, labels and menus
   css: [
     '@fontsource-variable/archivo/wdth.css',
     '@fontsource/barlow-condensed/300.css', '@fontsource/barlow-condensed/400.css', '@fontsource/barlow-condensed/400-italic.css',
     '@fontsource/barlow-condensed/500.css', '@fontsource/barlow-condensed/600.css',
-    '@/assets/css/main.css', '@/assets/css/font-awesome.css',
+    '@/assets/css/base/fonts.css', '@/assets/css/main.css', '@/assets/css/font-awesome.css',
   ],
+
+  // The CSS of the page written into the HTML: no stylesheet blocking the first paint on phones
+  features: { inlineStyles: true },
 
   // Nuxt features turned on: page transitions and server components
   experimental: {
@@ -97,7 +101,7 @@ export default defineNuxtConfig({
     externals: { external: ['@vue/devtools-api'] },
     // Browser cache per type of file, and admin / login / API hidden from search engines
     routeRules: {
-      '/images/**': { headers: { 'Cache-Control': 'public, max-age=2592000', 'X-Content-Type-Options': 'nosniff' } },
+      '/images/**': { headers: { 'Cache-Control': 'public, max-age=31536000', 'X-Content-Type-Options': 'nosniff' } },
       // MediaPipe of the video room (background effects): loaded only when an effect is chosen, then kept 30 days
       '/mediapipe/**': { headers: { 'Cache-Control': 'public, max-age=2592000', 'X-Content-Type-Options': 'nosniff' } },
       '/fonts/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' } },
@@ -113,9 +117,22 @@ export default defineNuxtConfig({
       '/api/**': { headers: { 'X-Robots-Tag': 'noindex, nofollow' } },
       '/': { ssr: true, headers: { 'Cache-Control': 'public, max-age=600, s-maxage=3600' } },
       '/pay-me': { ssr: true, headers: { 'Cache-Control': 'public, max-age=600, s-maxage=3600' } },
-      '/legal/**': { ssr: true, headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=7200' } }
+      '/legal/**': { ssr: true, headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=7200' } },
+      // Local pages (admin > Villes): a published change shows within 10 minutes
+      '/zone-intervention/**': { ssr: true, headers: { 'Cache-Control': 'public, max-age=600, s-maxage=600' } },
+      '/creation-site-internet/**': { ssr: true, headers: { 'Cache-Control': 'public, max-age=600, s-maxage=600' } }
     },
     minify: !isDev
+  },
+
+  // Every text of the site (plugins/translations, ~290 KB) is fetched by plugins/lang.ts once the page is ready: not
+  // announced in the HTML (a prefetch link would download it during the first seconds, while the page loads)
+  hooks: {
+    'build:manifest': (manifest) => {
+      for (const chunk of Object.values(manifest)) {
+        if (chunk.file?.includes('translations-')) chunk.prefetch = false
+      }
+    },
   },
 
   // Sitemap, robots.txt and Pinia (cookie banner)
@@ -124,14 +141,16 @@ export default defineNuxtConfig({
   // blocks every crawler automatically; it hides pages, it does not protect them
   robots: { disallow: privateRoutes.map((route) => route.replace(/\/+$/, '')) },
   // sitemap.xml: every public page (from pages/) and the date of the build, the private pages out
-  sitemap: { autoLastmod: true, exclude: privateRoutes.flatMap((route) => [route, `${route}/**`]) },
+  // The published city pages are added by the API (/creation-site-internet/<slug>/, admin > Villes)
+  sitemap: { autoLastmod: true, exclude: privateRoutes.flatMap((route) => [route, `${route}/**`]), sources: ['/api/cities/sitemap'] },
 
   // <head> of every page (favicon); a page change fades (style: assets/css/components/reveal.css)
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     head: {
       link: [
-        { rel: 'icon', type: 'image/png', href: '/favicon.png' }
+        // 96 px (8 KB, a multiple of 48 px as Google asks); favicon.png (512 px, 95 KB) stays for Stripe and apple-touch-icon
+        { rel: 'icon', type: 'image/png', sizes: '96x96', href: '/favicon-96.png' }
       ],
       meta: [
         { charset: 'utf-8' },

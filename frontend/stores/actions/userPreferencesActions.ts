@@ -14,7 +14,7 @@ type UserPreferencesStore = {
 }
 
 // Name of the cookie holding the choice, and how long it is kept
-// Same name as before the DC Scaffold (https://github.com/Djason16/dc-scaffold) alignment: visitors keep the choice they already made
+// Same name as before the DC Scaffold (https://tools.djason-chery.dev/en/scaffold/) alignment: visitors keep the choice they already made
 export const CONSENT_COOKIE = 'site_cookie_consent'
 const COOKIE_NAME = CONSENT_COOKIE
 const EXPIRES_IN_DAYS = 180

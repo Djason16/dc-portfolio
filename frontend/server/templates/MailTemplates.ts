@@ -1,4 +1,5 @@
 import { formatDate } from '~/utils/formatDate'
+import { whatsappNumberOf } from '~/utils/socialNetworks'
 import { MailLayout } from './MailLayout'
 
 /*
@@ -204,7 +205,8 @@ const renderAgendaEmail = ({ timezone, schedule, unavailability = [], isCurrentl
   // Signature line — email and phone/WhatsApp appended subtly under the name, like a classic email signature
   const contactEmail = settings.email
   const contactPhone = settings.phone
-  const whatsappNumber = (settings.whatsapp || contactPhone || '').replace(/[^\d+]/g, '')
+  // The number of the WhatsApp link of admin > My info, else the phone
+  const whatsappNumber = whatsappNumberOf(settings.socialLinks) || (contactPhone || '').replace(/[^\d+]/g, '')
 
   const signatureContactLine = (contactEmail || contactPhone) ? `
         <p style="font-size:0.8rem;color:${MailLayout.theme.colorTextSiteNote};margin-top:0.25rem;">

@@ -2,7 +2,9 @@ import { DatabaseHelper } from '../utils/DatabaseHelper'
 import { SessionHelper } from './SessionHelper'
 import { BOOKING_SEEDS, BOOKING_TABLES, migrateBookings } from './BookingSchema'
 import { AUTH_TABLES } from './AuthSchema'
-import { LICENSE_SEEDS, LICENSE_TABLES } from './LicenseSchema'
+import { LICENSE_SEEDS, LICENSE_TABLES, migrateLicenses } from './LicenseSchema'
+import { EINVOICE_TABLES, migrateEinvoices } from './EinvoiceSchema'
+import { CITY_SEEDS, CITY_TABLES } from './CitySchema'
 
 /*
  * Tables of the project (MySQL), created at startup by server/plugins/init-database.js.
@@ -201,6 +203,8 @@ const TABLES = {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP`,
     ...BOOKING_TABLES, // Booking page: kinds of appointment, bookings, rules (BookingSchema.ts)
     ...LICENSE_TABLES, // Licences of the DC tools sold on tools.djason-chery.dev (LicenseSchema.ts)
+    ...EINVOICE_TABLES, // E-invoices sent to Super PDP, client columns of the e-invoices (EinvoiceSchema.ts)
+    ...CITY_TABLES, // City pages /creation-site-internet/<slug>/ and their shared questions (CitySchema.ts)
 }
 
 // Default rows, inserted only when their table is empty
@@ -240,6 +244,7 @@ const SEEDS = {
         [DatabaseHelper.newId(), 0, 'unavailable']),
     ...BOOKING_SEEDS,
     ...LICENSE_SEEDS,
+    ...CITY_SEEDS,
 }
 
 // Changes of tables made before their current version (safe at every start: each one checks first). dc_documents: the contracts
@@ -276,7 +281,7 @@ export const DatabaseSchema = {
         for (const [table, seed] of Object.entries(SEEDS))
             if (await isEmpty(table)) await seed()
 
-        for (const step of [migrate, migrateBookings]) await step()
+        for (const step of [migrate, migrateBookings, migrateEinvoices, migrateLicenses]) await step()
     },
 
     /**

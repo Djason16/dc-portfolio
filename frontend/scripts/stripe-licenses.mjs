@@ -1,4 +1,5 @@
-// Creates (once, safe to run again) what the licences of the DC tools need in Stripe, for the key of one .env file:
+// Creates (once, safe to run again) what the licences of the DC tools need in Stripe, for the key of one .env file
+// (a price already there is never changed: change a price from admin > DC licences > Prices and offers, LicensePricing.ts):
 // a product per tool (and the bundle « DC complet ») with a monthly and a yearly price (lookup keys dc_<product>_<interval>), the launch coupon of each tool
 // (-30 % for life, 50 uses), a customer portal configuration (card, invoices, cancel at the end of the period) and the
 // licence events added to the site's webhook.
@@ -12,7 +13,8 @@ const PRICES = {
     scaffold: { month: 900, year: 9000, name: 'DC Scaffold Pro' },
     prospect: { month: 1900, year: 19000, name: 'DC Prospect Pro' },
     sentinel: { month: 900, year: 9000, name: 'DC Sentinel Pro' },
-    bundle: { month: 2900, year: 29000, name: 'DC complet Pro (Scaffold, Prospect, Sentinel)' },
+    audit: { month: 1200, year: 12000, name: 'DC Audit Pro' },
+    bundle: { month: 3500, year: 35000, name: 'DC complet Pro (Scaffold, Prospect, Sentinel, Audit)' },
 }
 const file = process.argv[2]
 if (!file || !fs.existsSync(file)) throw new Error('Usage: node scripts/stripe-licenses.mjs <env file>')

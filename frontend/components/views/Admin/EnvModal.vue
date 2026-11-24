@@ -18,9 +18,9 @@ const props = defineProps({ show: Boolean })
 const emit = defineEmits(['close'])
 const lang = useLang()
 const { getTranslation: t } = lang
-const { envVars, fetchEnvVars, updateEnvVars } = useEnv()
+const { envVars, masked, fetchEnvVars, updateEnvVars } = useEnv()
 
-// Variables by part, in the order of .env.example (mode, site, database, admin, emails, payments, bank, translation, area, video room)
+// Variables by part, in the order of .env.example (mode, site, database, admin, emails, payments, bank, e-invoices, translation, area, video room, backup)
 const envCategories = {
     mode: ['NODE_ENV'],
     site: ['NUXT_PUBLIC_FRONTEND_DOMAIN'],
@@ -29,9 +29,11 @@ const envCategories = {
     emails: ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASS', 'MAIL_LOG_ONLY'],
     payments: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'],
     bank: ['BANK_IBAN', 'BANK_BIC'],
+    einvoice: ['SUPERPDP_API_URL', 'SUPERPDP_ENV', 'SUPERPDP_CLIENT_ID', 'SUPERPDP_CLIENT_SECRET', 'SUPERPDP_MOCK'],
     translation: ['MYMEMORY_EMAIL'],
     area: ['GOOGLE_MAPS_API_KEY'],
     video: ['STUN_URLS', 'TURN_URLS', 'TURN_USERNAME', 'TURN_CREDENTIAL'],
+    backup: ['BACKUP_KEY_SHA256'],
 }
 const known = new Set(Object.values(envCategories).flat())
 
@@ -44,12 +46,9 @@ const formattedItems = computed(() => {
     const groups: [string, string[]][] = [...Object.entries(envCategories), ...(others.length ? [['others', others] as [string, string[]]] : [])]
     return groups.flatMap(([category, keys]) => [
         { key: `section_${category}`, _section: t(`envGroup_${category}`) },
-        ...keys.map(key => ({ key, value: vars[key] ?? '', sensitive: isSensitiveField(key) })),
+        ...keys.map(key => ({ key, value: vars[key] ?? '', sensitive: masked.value.has(key) })),
     ])
 })
-
-// Passwords, keys (API keys too) and bank details: hidden in the table and while edited
-const isSensitiveField = (key: string) => ['PASSWORD', 'SECRET', 'PASS', 'KEY', 'IBAN', 'BIC', 'ANSWER', 'CREDENTIAL'].some(word => key.includes(word))
 
 // Text of the first column, built as HTML (the clear name, the name of the variable under it): every part escaped
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<string, string>)[c] ?? c)
@@ -68,21 +67,26 @@ const columns = computed(() => [
         key: 'value',
         label: lang.getTranslation('value'),
         mobile: 'plain',
+        // A secret comes masked from the server (•••• + its last 4 characters): edited from an empty field, typed again in full
         inputType: (item: Record<string, any>) => item.sensitive ? 'password' : 'text',
-        editValue: (item: Record<string, any>) => item.value,
-        formatter: (item: Record<string, any>) => item.sensitive && item.value ? '••••••••' : item.value || '-',
-        tooltip: (item: Record<string, any>) => item.sensitive ? '' : item.value,
+        editValue: (item: Record<string, any>) => item.sensitive ? '' : item.value,
+        formatter: (item: Record<string, any>) => item.value || '-',
+        tooltip: (item: Record<string, any>) => item.sensitive ? t('envMaskedHint') : item.value,
     }
 ])
 
 // Handles updates from the table
 const handleUpdate = async ({ item, field, value }: { item: Record<string, any>, field: string, value: any }) => {
     if (!item?.key) return console.error('No item key')
+    // A secret left empty (or its masked form) keeps its value: nothing sent
+    if (item.sensitive && (value === '' || value === item.value)) return
 
     try {
         await updateEnvVars({ [item.key]: value }, () => showSuccess(lang.getTranslation('envSaved')))
-    } catch {
-        await showFailure(lang.getTranslation('saveFailed'))
+    } catch (error) {
+        // A value refused by the server (Super PDP address...): its own message, else the usual one
+        const code = (error as Error).message
+        await showFailure(code?.startsWith('env') ? t(code) : t('saveFailed'))
     }
 }
 

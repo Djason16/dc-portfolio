@@ -27,7 +27,7 @@ Double-click `start.bat` at the project root, then choose:
 | `B` | Build front | `npm run build`: production build (site + API) |
 
 Direct choice from a terminal: `.\start.ps1 -Action D`.
-Same launcher as [DC Scaffold](https://github.com/Djason16/dc-scaffold) (`start.bat`, `start.ps1`, `scripts/common.ps1`).
+Same launcher as [DC Scaffold](https://tools.djason-chery.dev/en/scaffold/) (`start.bat`, `start.ps1`, `scripts/common.ps1`).
 
 ## 03 — Mac / Linux
 

@@ -9,7 +9,7 @@
         </div>
 
         <ul class="card-grid">
-            <li v-for="(skill, i) in skills" :key="skill.name" v-reveal class="skills-card"
+            <li v-for="(skill, i) in skills" :key="skill.name" v-reveal="'unfold'" class="skills-card"
                 :style="{ '--reveal-delay': `calc(var(--reveal-stagger) * ${i % 6})` }">
                 <div class="grid-card">
                     <span class="grid-card__code eyebrow">{{ padIndex(i, code) }}</span>

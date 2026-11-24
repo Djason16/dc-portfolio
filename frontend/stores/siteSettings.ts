@@ -27,14 +27,8 @@ export const useSiteSettingsStore = defineStore('siteSettings', {
             area: '',
             // '1': the address is the town and country of the billing address
             sameAddress: '',
-            // Social links of the footer
-            linkedin: '',
-            github: '',
-            malt: '',
-            instagram: '',
-            tiktok: '',
-            facebook: '',
-            whatsapp: '',
+            // Social links of the footer, in their order: JSON [{ network, url, label? }] (utils/socialNetworks.ts)
+            socialLinks: '',
             // Photo of "About me" uploaded from the admin (empty: public/images/about-me.webp)
             aboutPhoto: '',
             // Consumer mediator printed in the terms (CGV)

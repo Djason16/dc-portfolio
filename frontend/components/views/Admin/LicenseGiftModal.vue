@@ -10,19 +10,19 @@
             <label for="gift-name">{{ t('licenseGiftName') }}</label>
             <input id="gift-name" v-model="form.name" type="text" autocomplete="name" maxlength="255" :title="t('licenseGiftName')" />
         </div>
-        <!-- The tools offered: one tile per tool (its name and what it does), ticked tiles in mint; "the 3" in one click -->
+        <!-- The tools offered: one tile per tool (its name and what it does), ticked tiles in mint; all of them in one click -->
         <div class="form-group gift-products" role="group" aria-labelledby="gift-products-label">
             <label id="gift-products-label" class="gift-products__label">{{ t('licenseGiftProducts') }}</label>
             <div class="gift-products__grid">
-                <label v-for="id in LICENSE_PRODUCTS" :key="id" class="gift-tile" :class="{ 'gift-tile--on': form.products.includes(id) }" :title="PRODUCT_NAMES[id]">
+                <label v-for="id in productIds" :key="id" class="gift-tile" :class="{ 'gift-tile--on': form.products.includes(id) }" :title="productNames[id]">
                     <input v-model="form.products" type="checkbox" :value="id" />
                     <span class="gift-tile__text">
-                        <span class="gift-tile__name text-label">{{ PRODUCT_NAMES[id] }}</span>
+                        <span class="gift-tile__name text-label">{{ productNames[id] }}</span>
                         <span class="gift-tile__hint text-body-s">{{ t(`licenseGiftHint_${id}`) }}</span>
                     </span>
                 </label>
             </div>
-            <button type="button" class="gift-products__all text-label" :title="t('licenseGiftAll')" @click="form.products = [...LICENSE_PRODUCTS]">{{ t('licenseGiftAll') }}</button>
+            <button type="button" class="gift-products__all text-label" :title="t('licenseGiftAll')" @click="form.products = [...productIds]">{{ t('licenseGiftAll') }}</button>
         </div>
         <div class="form-group">
             <label for="gift-duration">{{ t('licenseGiftDuration') }}</label>
@@ -45,22 +45,25 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import FormModal from '@/components/ui/Modal/FormModal.vue'
 import { useLang } from '@/composables/useLang'
 import { useMessage } from '@/composables/useMessage'
-import { LICENSE_PRODUCTS, PRODUCT_NAMES, useLicenses } from '@/composables/useLicenses'
+import { useLicenses } from '@/composables/useLicenses'
 import { showAlert } from '@/utils/dialog'
 
 defineProps({ show: Boolean })
 const emit = defineEmits(['close'])
 const { getTranslation: t } = useLang()
 const { translatedMessage, showMessage, clearMessage } = useMessage()
-const { giftLicense } = useLicenses()
+const { giftLicense, productIds, productNames, fetchProducts } = useLicenses()
+fetchProducts()
 
-const empty = () => ({ email: '', name: '', products: [...LICENSE_PRODUCTS] as string[], months: 12, language: 'fr', note: '' })
+const empty = () => ({ email: '', name: '', products: [...productIds.value] as string[], months: 12, language: 'fr', note: '' })
 const form = reactive(empty())
 const loading = ref(false)
+// Every tool ticked by default, once the list of the tools is known
+watch(productIds, ids => { if (!form.products.length) form.products = [...ids] })
 
 const close = () => {
     Object.assign(form, empty())
@@ -89,7 +92,7 @@ const submit = async () => {
 
 .gift-products__grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
 }
 

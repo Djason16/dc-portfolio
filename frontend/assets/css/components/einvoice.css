@@ -1,0 +1,91 @@
+/* E-invoicing (components/views/Admin/EinvoiceModal.vue, Billing/BillingEinvoice.vue): the mode, the credentials, the invoices */
+.einvoice {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.einvoice__muted { color: var(--fg-muted); margin: 0; }
+
+/* State of the API: off (nothing sent nor billed) in the panel color, on in mint */
+.einvoice__state { margin: 0; padding: 0.9rem 1rem; border-left: 3px solid var(--line); background: var(--panel); }
+.einvoice__state.is-on { border-left-color: var(--mint); color: var(--fg); }
+
+.einvoice__modes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.einvoice__modes legend { margin-bottom: 0.75rem; }
+
+.einvoice__mode {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.9rem 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    cursor: pointer;
+}
+
+.einvoice__mode:has(input:checked) { border-color: var(--mint); }
+.einvoice__mode input { margin-top: 0.25rem; accent-color: var(--mint); }
+.einvoice__mode span { display: flex; flex-direction: column; gap: 0.25rem; }
+.einvoice__mode small { color: var(--fg-muted); }
+
+.einvoice__form,
+.einvoice .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.einvoice .form-group { gap: 0.4rem; flex: 1; min-width: 0; }
+.einvoice .row-group { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+.einvoice .row-group > .form-group { flex: 1 1 12rem; }
+
+.einvoice__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* One invoice: its number and client, its tags, the last event; the open button at the end of the row */
+.einvoice__item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--panel);
+    min-width: 0;
+}
+
+.einvoice__main { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; overflow-wrap: anywhere; }
+.einvoice__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: flex-end; }
+.einvoice__item > small { grid-column: 1 / -1; overflow-wrap: anywhere; }
+.einvoice__open { grid-column: 3; grid-row: 1; }
+
+.billing-einvoice__state {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    margin: 0;
+}
+
+.billing-einvoice__state dt { color: var(--fg-muted); }
+.billing-einvoice__state dd { margin: 0.4rem 0 0; overflow-wrap: anywhere; }
+
+/* A phone: the tags under the number, the open button stays on the right */
+@media (max-width: 520px) {
+    .einvoice__item { grid-template-columns: 1fr auto; }
+    .einvoice__tags { grid-column: 1; justify-content: flex-start; }
+    .einvoice__open { grid-column: 2; grid-row: 1; }
+}

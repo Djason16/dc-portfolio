@@ -48,15 +48,16 @@ import IconButton from '@/components/ui/Button/IconButton.vue'
 import { padIndex } from '@/utils/display'
 import { useLang } from '@/composables/useLang'
 import { useModalData } from '@/composables/useLiveData'
-import { PRODUCT_NAMES, useLicenses } from '@/composables/useLicenses'
+import { useLicenses } from '@/composables/useLicenses'
 import { showConfirm, showFailure, showSuccess } from '@/utils/dialog'
 
 const props = defineProps({ show: Boolean })
 const emit = defineEmits(['close', 'open'])
 const { getTranslation: t } = useLang()
-const { pricing, fetchPricing, setPrice, deleteOffer } = useLicenses()
+const { pricing, fetchPricing, setPrice, deleteOffer, productNames, fetchProducts } = useLicenses()
+fetchProducts()
 
-const offerName = (id: string) => id === 'all' ? t('licenseAllOffers') : id === 'bundle' ? 'DC complet' : PRODUCT_NAMES[id] ?? id
+const offerName = (id: string) => id === 'all' ? t('licenseAllOffers') : id === 'bundle' ? 'DC complet' : productNames.value[id] ?? id
 // The prices being typed, one pair per offer (reset each time the prices are read)
 const draft = reactive<Record<string, { month: number, year: number }>>({})
 watch(() => pricing.value.prices, rows => rows.forEach(r => { draft[r.offer] = { month: r.month, year: r.year } }), { immediate: true })
@@ -150,7 +151,8 @@ useModalData(() => props.show, fetchPricing, [])
     align-items: baseline;
     gap: 0.4rem;
     color: var(--fg);
-    font-family: var(--font-display);
+    /* Archivo in its normal width and weight (the variable font): Archivo Expanded only has the semi bold of the titles */
+    font-family: "Archivo Variable", var(--font-display);
     font-size: var(--font-display-s);
 }
 

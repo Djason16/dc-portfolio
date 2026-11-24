@@ -28,6 +28,12 @@ Les échecs sont gardés dans la base (`dc_rate_limits`), par adresse IP (et, po
 | Mauvais mot de passe | 5 | 15 minutes |
 | Mauvais code à usage unique | 5 | 15 minutes |
 | Mauvaise réponse de sécurité | 3 | 1 heure |
+| Vérification de licence / état / lien vers l'espace Stripe (par IP) | 60 / 10 par heure | 15 / 30 minutes |
+| Essai gratuit (par IP et par personne) | 5 par jour | 1 jour |
+| Demande d'aide (par IP et par adresse) | 5 par heure | 1 heure |
+| Pages Stripe : achat de licence, abonnement Payez-moi (par IP) | 20 par heure | 1 heure |
+
+L'IP est l'adresse de la connexion. `X-Forwarded-For` (sa dernière entrée, celle qu'ajoute Apache) ne compte que si la connexion vient d'un proxy : boucle locale, adresse privée, ou un tube (le serveur de dev de Nuxt). Depuis toute autre adresse, un en-tête inventé est ignoré (`SecurityHelper.ip`).
 
 ## 04 — Envois de fichiers
 
@@ -37,6 +43,7 @@ Les échecs sont gardés dans la base (`dc_rate_limits`), par adresse IP (et, po
 
 - Clé secrète Stripe, SMTP, mot de passe de la base, banque et compte admin restent sur le serveur : jamais dans une variable `NUXT_PUBLIC_`
 - Les fichiers `.env` ne sont jamais envoyés sur Git
+- Admin → Environnement ne reçoit jamais un secret (noms avec SECRET, PASS, KEY, TOKEN, CREDENTIAL, IBAN, BIC, ANSWER) : seulement `••••` et ses 4 derniers caractères (aucun pour une valeur de moins de 12 caractères). Renvoyé masqué, ou laissé vide, il ne change pas. `SUPERPDP_API_URL` ne peut valoir que `https://api.superpdp.tech` (tests : `SUPERPDP_MOCK=true`)
 - `GET /api/settings` (public) ne donne ni la date de naissance (seulement `age`, calculé par le serveur) ni la numérotation des documents (`numbering`) : seul l'admin connecté les reçoit (`SettingsController.getAll`). L'adresse de facturation reste publique : les devis, les factures et le formulaire de rétractation la montrent aux clients (mentions légales)
 
 ---

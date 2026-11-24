@@ -1,0 +1,295 @@
+/* « Fiche » pages: the city pages (CitySheet.vue, direction A chosen on 2026-11-24) and the zone page (Area.vue), their
+   hero (CitySheetHero.vue), layout and entrance animations; sizes from the text classes only */
+.sheet {
+    padding: 0 var(--page-gutter) 6rem;
+    background: var(--ink-800);
+    color: var(--fg);
+}
+
+.sheet > * {
+    max-width: 1320px;
+    margin-inline: auto;
+}
+
+.sheet__hero {
+    padding: 4rem 0 0;
+}
+
+.sheet__crumbs {
+    color: var(--fg-muted);
+}
+
+.sheet__crumbs a {
+    color: var(--fg);
+}
+
+.sheet__crumbs a::after {
+    display: none;
+}
+
+.sheet__crumb-sep {
+    margin: 0 0.6rem;
+}
+
+/* Icons of the site (Font Awesome), decorative: in mint beside their label */
+.sheet__icon {
+    margin-right: 0.55rem;
+    color: var(--accent);
+}
+
+.sheet__item-icon {
+    color: var(--accent);
+}
+
+.sheet__fact-label {
+    display: flex;
+    align-items: center;
+}
+
+.sheet__crumbs [aria-current] {
+    color: var(--accent);
+}
+
+.sheet__kicker {
+    margin-top: 4rem;
+    animation: sheet-rise var(--reveal-duration) var(--ease) both;
+}
+
+.sheet__title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0 0;
+}
+
+.sheet__title > span {
+    animation: sheet-rise var(--reveal-duration) var(--ease) both;
+}
+
+.sheet__before {
+    color: var(--fg-muted);
+    animation-delay: 0.1s !important;
+}
+
+.sheet__name {
+    overflow-wrap: break-word;
+    animation-delay: 0.2s !important;
+}
+
+.sheet__after {
+    color: var(--accent);
+    animation-delay: 0.3s !important;
+}
+
+/* The lead on the right half, the buttons under it */
+.sheet__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 44rem;
+    margin: 3rem 0 0 auto;
+    animation: sheet-rise var(--reveal-duration) var(--ease) 0.45s both;
+}
+
+.sheet__lead,
+.sheet__text,
+.sheet__note,
+.sheet__item-text {
+    margin: 0;
+    color: var(--fg-muted);
+}
+
+.sheet__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+}
+
+/* Ribbon of figures: thin rules drawing from the left, the figures counting up */
+.sheet__ribbon {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    margin: 5rem 0 0;
+    border-block: 1px solid var(--line);
+}
+
+.sheet__fact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.75rem 1.5rem;
+    border-left: 1px solid var(--line);
+    animation: sheet-rise var(--reveal-duration) var(--ease) both;
+    animation-delay: calc(0.6s + var(--i) * var(--reveal-stagger));
+}
+
+.sheet__fact:first-child {
+    border-left: none;
+    padding-left: 0;
+}
+
+.sheet__fact dd {
+    margin: 0;
+}
+
+/* Magazine grid: number and label in a narrow column that stays in sight, the text in the wide one */
+.sheet__part {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: 3rem;
+    padding: 5rem 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.sheet__side {
+    position: sticky;
+    top: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-self: start;
+    color: var(--accent);
+}
+
+.sheet__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.sheet__body h2 {
+    margin: 0;
+}
+
+.sheet__text {
+    max-width: 70ch;
+}
+
+.sheet__items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 3rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sheet__item {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--line);
+}
+
+.sheet__item h3 {
+    margin: 0 0 0.5rem;
+}
+
+.sheet__step {
+    margin: 0 0 0.4rem;
+}
+
+.sheet__cta {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 6rem 0 0;
+}
+
+.sheet__cta h2,
+.sheet__cta p {
+    max-width: 22ch;
+    margin: 0;
+}
+
+.sheet__cta p {
+    max-width: 60ch;
+    color: var(--fg-muted);
+}
+
+
+/* Links of a part (other city pages, projects): no line under them, a color change on hover */
+.sheet__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sheet__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    transition: border-color var(--motion-fast) var(--ease), color var(--motion-fast) var(--ease);
+}
+
+.sheet__link::after {
+    display: none;
+}
+
+.sheet__meta {
+    color: var(--fg-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .sheet__link:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+}
+
+@keyframes sheet-rise {
+    from {
+        opacity: 0;
+        transform: translateY(1.5rem);
+    }
+}
+
+@media (max-width: 1024px) {
+    .sheet__part {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.25rem;
+        padding: 3.5rem 0;
+    }
+
+    .sheet__side {
+        position: static;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 1rem;
+    }
+
+    .sheet__items {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .sheet__fact,
+    .sheet__fact:first-child {
+        padding: 1.25rem 0;
+        border-left: none;
+        border-top: 1px solid var(--line);
+    }
+
+    .sheet__fact:first-child {
+        border-top: none;
+    }
+
+    .sheet__intro {
+        margin-top: 2rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sheet * {
+        animation: none !important;
+    }
+}

@@ -16,7 +16,8 @@ import { exportPdf } from '@/utils/pdf'
 
 // Bank details printed on the documents, read once
 let bank: BankInfo | null = null
-const loadBank = async () => {
+// Also used by the e-invoices (composables/useEinvoice.ts): the same PDF
+export const loadBank = async () => {
     if (bank) return bank
     const res = await api.get('/bank')
     bank = res.success ? { iban: res.bank?.iban, bic: res.bank?.bic } : {}

@@ -4,18 +4,21 @@
   "description": "Nuxt 4 fullstack application with Nitro for djason-chery.dev — integrated back and front",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/icons.mjs && node scripts/mediapipe.mjs",
+    "predev": "node scripts/icons.mjs && node scripts/fonts.mjs && node scripts/mediapipe.mjs",
     "dev": "nuxt dev",
-    "prebuild": "node scripts/icons.mjs && node scripts/mediapipe.mjs",
+    "prebuild": "node scripts/icons.mjs && node scripts/fonts.mjs && node scripts/mediapipe.mjs",
     "build": "nuxt build --dotenv .env.production",
-    "prebuild:qualif": "node scripts/icons.mjs && node scripts/mediapipe.mjs",
+    "prebuild:qualif": "node scripts/icons.mjs && node scripts/fonts.mjs && node scripts/mediapipe.mjs",
     "build:qualif": "node scripts/qualif.mjs build",
     "start": "node --env-file=.env.production .output/server/index.mjs",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "db:backup": "node scripts/db-backup.mjs",
     "db:restore": "node scripts/db-restore.mjs",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "test:cities": "node scripts/cities-similarity.mjs",
+    "test:tools": "node scripts/tools-catalog-test.mjs",
+    "check:texts": "node scripts/check-texts.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
@@ -31,6 +34,7 @@
     "mysql2": "^3.24.6",
     "nodemailer": "^10.5.0",
     "nuxt": "^4.4.8",
+    "pdf-lib": "^1.17.1",
     "pinia": "^4.1.0",
     "stripe": "^22.2.1",
     "vue": "^3.5.38",

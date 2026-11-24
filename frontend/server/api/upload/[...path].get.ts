@@ -5,7 +5,7 @@ export default defineEventHandler(async event => {
     if (!result) return ResponseHelper.notFound(event, 'File not found')
 
     setResponseHeader(event, 'Content-Type', result.mimeType)
-    setResponseHeader(event, 'Cache-Control', 'public, max-age=604800')
+    setResponseHeader(event, 'Cache-Control', 'public, max-age=31536000, immutable')
     setResponseHeader(event, 'X-Content-Type-Options', 'nosniff')
     // A file opened directly cannot run scripts on the site
     setResponseHeader(event, 'Content-Security-Policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox")

@@ -50,6 +50,10 @@ const columns = computed(() => [
         options: typeOptions
     },
     { key: 'siret', label: lang.getTranslation('siret'), formatter: (c: Record<string, any>) => displayValue(c.siret), detail: true },
+    // E-invoices: country code, VAT number, electronic invoicing address (empty: the SIREN)
+    { key: 'country', label: lang.getTranslation('clientCountry'), formatter: (c: Record<string, any>) => c.country || 'FR', autocomplete: 'country', detail: true },
+    { key: 'vat_number', label: lang.getTranslation('clientVatNumber'), formatter: (c: Record<string, any>) => displayValue(c.vat_number), detail: true },
+    { key: 'einvoice_address', label: lang.getTranslation('clientEinvoiceAddress'), formatter: (c: Record<string, any>) => displayValue(c.einvoice_address), detail: true },
     {
         key: 'active', label: lang.getTranslation('active'), type: 'select', mobile: 'tag',
         formatter: (c: Record<string, any>) => lang.getTranslation(displayActive(c) ? 'active' : 'inactive'),

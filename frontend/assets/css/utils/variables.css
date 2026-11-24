@@ -1,4 +1,5 @@
-/* Archivo and Barlow Condensed come from @fontsource (nuxt.config.ts css), served by the site itself */
+/* Archivo and Barlow Condensed come from @fontsource (nuxt.config.ts css), served by the site itself; Archivo Expanded:
+   base/fonts.css (scripts/fonts.mjs) */
 
 /* Root variables */
 :root {
@@ -23,12 +24,12 @@
     --accent-purple: #BB8FCE;
 
     /* Font variables */
-    --font-primary: "Barlow Condensed", "Roboto Condensed", arial, sans-serif;
+    --font-primary: "Barlow Condensed", "Barlow Condensed Fallback", "Roboto Condensed", arial, sans-serif;
     /* Two typefaces on the public pages: a wide one for the titles and names (Archivo Expanded, like the logo),
        a narrow one for the texts, labels and menus (Barlow Condensed) */
-    --font-display: "Archivo Variable", "Archivo", arial, sans-serif;
-    --font-label: "Barlow Condensed", "Roboto Condensed", arial, sans-serif;
-    --font-text: "Barlow Condensed", "Roboto Condensed", arial, sans-serif;
+    --font-display: "Archivo Expanded", "Archivo Expanded Fallback", "Archivo Variable", "Archivo", arial, sans-serif;
+    --font-label: "Barlow Condensed", "Barlow Condensed Fallback", "Roboto Condensed", arial, sans-serif;
+    --font-text: "Barlow Condensed", "Barlow Condensed Fallback", "Roboto Condensed", arial, sans-serif;
 
     /* Ink palette of the public pages: a black tinted with the slate of the site, two tones from one section to the next,
        near white text, a grey for the secondary text and a mint for the labels (every pair over 7:1) */

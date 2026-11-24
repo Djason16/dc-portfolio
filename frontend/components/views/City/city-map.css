@@ -1,0 +1,190 @@
+/*
+ * Zoomable map of the towns (CityMap.vue): its box keeps its size (nothing moves when the geography arrives), the land in
+ * the panel colour, France a bit lighter, its departments in thin lines; the towns are links laid over the drawing, their
+ * names in the text classes of the site. Lines keep their thickness whatever the zoom (non-scaling-stroke)
+ */
+.city-map {
+    margin: 0;
+}
+
+.city-map__stage {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: var(--ink-900);
+    cursor: grab;
+    /* One finger up and down scrolls the page; sideways and two fingers move and zoom the map */
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.city-map__stage.is-dragging {
+    cursor: grabbing;
+}
+
+.city-map__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.city-map__country {
+    fill: var(--ink-700);
+    stroke: var(--ink-900);
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
+}
+
+.city-map__france {
+    fill: #2a3238;
+    stroke: var(--paper-muted);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.city-map__department {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.14);
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
+}
+
+.city-map__department.is-shown {
+    fill: rgba(126, 230, 168, 0.06);
+    stroke: rgba(126, 230, 168, 0.35);
+}
+
+.city-map__department-name {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: var(--paper-muted);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.city-map__places {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+}
+
+/* A town: its dot on its place, its name beside (right or left of the dot) */
+.city-map__place {
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.city-map__link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--paper);
+    white-space: nowrap;
+    pointer-events: auto;
+    transform: translate(-6px, -50%);
+    outline-offset: 2px;
+}
+
+.city-map__link::after {
+    display: none;
+}
+
+.is-left .city-map__link {
+    flex-direction: row-reverse;
+    transform: translate(calc(-100% + 6px), -50%);
+}
+
+.is-below .city-map__link {
+    flex-direction: column;
+    gap: 2px;
+    transform: translate(-50%, -6px);
+}
+
+.city-map__dot {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    border: 2px solid var(--ink-900);
+    border-radius: 50%;
+    box-sizing: border-box;
+    background: var(--paper-muted);
+}
+
+.is-base .city-map__dot {
+    border-color: var(--paper);
+    background: var(--ink-900);
+}
+
+.is-current .city-map__dot {
+    background: var(--mint);
+}
+
+.is-current .city-map__name {
+    color: var(--mint);
+}
+
+/* A name that does not fit is hidden until the dot is hovered or focused (then above the others, on its own ground) */
+.city-map__name {
+    padding: 0 4px;
+    opacity: 0;
+    transition: opacity var(--motion-fast) var(--ease);
+}
+
+.has-name .city-map__name {
+    opacity: 1;
+    text-shadow: 0 0 4px var(--ink-900), 0 0 2px var(--ink-900);
+}
+
+.city-map__link:focus-visible .city-map__name,
+.city-map__link:hover .city-map__name {
+    opacity: 1;
+    background: var(--ink-900);
+}
+
+.city-map__link:focus-visible,
+.city-map__link:hover {
+    z-index: 2;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .city-map__link:hover .city-map__dot {
+        background: var(--mint);
+    }
+}
+
+.city-map__controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.city-map__caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 0.75rem;
+    color: var(--fg-muted);
+}
+
+@media (max-width: 600px) {
+    .city-map__stage {
+        aspect-ratio: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .city-map__name {
+        transition: none;
+    }
+}

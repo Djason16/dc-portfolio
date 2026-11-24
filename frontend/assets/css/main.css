@@ -11,6 +11,7 @@
 @import "components/section-layout.css";
 @import "components/section-head.css";
 @import "components/reveal.css";
+@import "components/reveal-sections.css";
 @import "components/card-grid.css";
 @import "components/app-dialog.css";
 @import "components/app-toasts.css";

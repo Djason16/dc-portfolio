@@ -27,6 +27,12 @@ Failed attempts are stored in the database (`dc_rate_limits`), per IP (and, for 
 | Wrong password | 5 | 15 minutes |
 | Wrong one-time code | 5 | 15 minutes |
 | Wrong security answer | 3 | 1 hour |
+| Licence check / state / Stripe space link (per IP) | 60 / 10 an hour | 15 / 30 minutes |
+| Free trial (per IP and per person) | 5 a day | 1 day |
+| Help request (per IP and per address) | 5 an hour | 1 hour |
+| Stripe pages: licence checkout, Pay me subscription (per IP) | 20 an hour | 1 hour |
+
+The IP is the socket address. `X-Forwarded-For` (its last entry, the one Apache adds) counts only when the socket is a proxy: loopback, private address, or a pipe (the dev server of Nuxt). From any other address, a forged header is ignored (`SecurityHelper.ip`).
 
 ## 04 — Uploads
 
@@ -36,6 +42,7 @@ Failed attempts are stored in the database (`dc_rate_limits`), per IP (and, for 
 
 - Stripe secret key, SMTP, database password, bank details and admin account stay on the server: never in a `NUXT_PUBLIC_` variable
 - `.env` files are never committed
+- Admin → Environment never receives a secret (names with SECRET, PASS, KEY, TOKEN, CREDENTIAL, IBAN, BIC, ANSWER): only `••••` and its last 4 characters (none for a value under 12 characters). Sent back masked, or left empty, it stays unchanged. `SUPERPDP_API_URL` can only be `https://api.superpdp.tech` (tests: `SUPERPDP_MOCK=true`)
 - `GET /api/settings` (public) gives neither the birth date (only `age`, worked out by the server) nor the numbering of the documents (`numbering`): only the logged-in admin gets them (`SettingsController.getAll`). The billing address stays public: the quotes, invoices and the withdrawal form show it to the clients (legal mentions)
 
 ---

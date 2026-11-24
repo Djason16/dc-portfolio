@@ -31,6 +31,9 @@
                 </template>
             </div>
         </div>
+
+        <!-- Social links: an ordered list of networks (stored as JSON in the setting socialLinks) -->
+        <SocialLinksEditor ref="socialEditor" />
     </FormModal>
 </template>
 
@@ -39,6 +42,7 @@ import { MESSAGE_DELAY, afterMessage } from '@/utils/feedback'
 import { computed, reactive, ref, watch } from 'vue'
 import HeroButton from '@/components/ui/Button/HeroButton.vue'
 import FormModal from '@/components/ui/Modal/FormModal.vue'
+import SocialLinksEditor from '@/components/views/Admin/SocialLinksEditor.vue'
 import { useLang } from '@/composables/useLang'
 import { useMessage } from '@/composables/useMessage'
 import { useSiteSettingsStore } from '@/stores/siteSettings'
@@ -79,19 +83,6 @@ const FIELD_ROWS: Field[][] = [
         { id: 'address', labelKey: 'settingAddress', placeholderKey: 'enterSettingAddress', type: 'text', autocomplete: 'address-level2', when: (f: Record<string, any>) => !f.sameAddress },
         { id: 'area', labelKey: 'settingArea', placeholderKey: 'enterSettingArea', type: 'text', autocomplete: 'off' },
     ],
-    [
-        { id: 'linkedin', label: 'LinkedIn', placeholder: 'https://www.linkedin.com/in/...', type: 'url', autocomplete: 'off' },
-        { id: 'github', label: 'GitHub', placeholder: 'https://github.com/...', type: 'url', autocomplete: 'off' },
-    ],
-    [
-        { id: 'malt', label: 'Malt', placeholder: 'https://www.malt.fr/profile/...', type: 'url', autocomplete: 'off' },
-        { id: 'instagram', label: 'Instagram', placeholder: 'https://www.instagram.com/...', type: 'url', autocomplete: 'off' },
-    ],
-    [
-        { id: 'tiktok', label: 'TikTok', placeholder: 'https://www.tiktok.com/@...', type: 'url', autocomplete: 'off' },
-        { id: 'facebook', label: 'Facebook', placeholder: 'https://www.facebook.com/...', type: 'url', autocomplete: 'off' },
-    ],
-    [{ id: 'whatsapp', label: 'WhatsApp', placeholder: 'https://wa.me/33...', type: 'url', autocomplete: 'off' }],
     // Consumer mediator: required as soon as you work for individuals, printed in the terms (CGV)
     [
         { id: 'mediatorName', labelKey: 'settingMediatorName', placeholder: 'CM2C, Médiation-Net…', type: 'text', autocomplete: 'off' },
@@ -123,8 +114,14 @@ const labelOf = (field: Field) => field.label || t(field.labelKey ?? '')
 // Copy of the current settings, edited in the form (the site changes only once saved)
 // (the box "same address" ticked or not, saved as '1' or '')
 const form = reactive<Record<string, any>>({ ...siteSettings.values })
-const fill = () => Object.assign(form, siteSettings.values, { sameAddress: isTicked(siteSettings.values.sameAddress) })
+const socialEditor = ref<InstanceType<typeof SocialLinksEditor> | null>(null)
+const fill = () => {
+    Object.assign(form, siteSettings.values, { sameAddress: isTicked(siteSettings.values.sameAddress) })
+    socialEditor.value?.load(siteSettings.values.socialLinks ?? '')
+}
 watch(() => props.show, open => open && fill(), { immediate: true })
+// The editor exists once the modal is drawn: it gets the saved links then
+watch(socialEditor, editor => { if (editor && props.show) editor.load(siteSettings.values.socialLinks ?? '') })
 
 // Same address: the town and country follow the billing address while it is typed
 watch(() => [form.sameAddress, form.invoiceAddress], ([same, invoice]) => { if (same) form.address = townOf(String(invoice ?? '')) })
@@ -154,8 +151,12 @@ const close = () => {
 // Saves the form and shows the result in the modal: the site, the documents and the emails use the new values at once
 const handleSubmit = async () => {
     clearMessage()
+    // A wrong social link: shown on its line, nothing saved
+    const socialLinks = socialEditor.value?.collect()
+    if (socialLinks === null) return showMessage('error', t('socialErrorFix'), 0)
     formLoading.value = true
-    const res = await siteSettings.save({ ...form, sameAddress: form.sameAddress ? '1' : '' })
+    const res = await siteSettings.save({ ...form, sameAddress: form.sameAddress ? '1' : '',
+        ...(socialLinks ? { socialLinks: JSON.stringify(socialLinks) } : {}) })
     formLoading.value = false
     if (!res.success) return showMessage('error', t('saveFailed'), 0)
 

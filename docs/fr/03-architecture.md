@@ -5,7 +5,7 @@
 **DOC-03** &nbsp;·&nbsp; [← Documentation](README.md)
 
 Un seul projet Nuxt 4 dans `frontend/` : le site (Vue) et l'API (Nitro) sont construits et mis en ligne ensemble, avec un seul serveur.
-Les dossiers et les rôles suivent les conventions de [DC Scaffold](https://github.com/Djason16/dc-scaffold).
+Les dossiers et les rôles suivent les conventions de [DC Scaffold](https://tools.djason-chery.dev/fr/scaffold/).
 
 ## 01 — Dossiers
 

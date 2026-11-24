@@ -1,0 +1,40 @@
+/* Frame of the city pages and the zone page (City.vue, Area.vue): the ground, the map card and the source of the figures.
+   The pages themselves: city-sheet.css */
+.city-page {
+    background: var(--ink-800);
+}
+
+.city-page > .city-source {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 2rem var(--page-gutter) 3rem;
+    color: var(--fg-muted);
+}
+
+/* The map as a card; its link to OpenStreetMap without the line under it, mint on hover */
+.sheet__map {
+    max-width: 44rem;
+    padding: 1.25rem;
+    background: var(--panel);
+}
+
+.sheet__map-link {
+    color: var(--fg-muted);
+    transition: color var(--motion-fast) var(--ease);
+}
+
+.sheet__map-link::after {
+    display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .sheet__map-link:hover {
+        color: var(--accent);
+    }
+}
+
+@media (max-width: 600px) {
+    .sheet__map {
+        padding: 0.75rem;
+    }
+}

@@ -113,7 +113,28 @@
     transform: translateY(0) rotate(-45deg);
 }
 
-/* Tablets and phones: logo on the left, "Menu" on the right; the links are in the full screen menu */
+/* The links of the header always on one line */
+.header-top .header-top__link,
+.header-top .header-top__pay {
+    white-space: nowrap;
+}
+
+/* From 1025 to 1280 px (the links of the header just fit): narrower margins and gaps, never a link on two lines */
+@media (min-width: 1025px) and (max-width: 1280px) {
+    .header-top {
+        padding: 0 2rem;
+    }
+
+    .header-top .header-top__content {
+        gap: 1.25rem;
+    }
+
+    .header-top .header-top__nav {
+        gap: clamp(0.9rem, 4.5vw - 2.35rem, 2.25rem);
+    }
+}
+
+/* Tablets and phones (1024 px and less): logo on the left, "Menu" on the right; the links are in the full screen menu */
 @media (max-width: 1024px) {
     .header-top .header-top__content {
         grid-template-columns: auto 1fr;

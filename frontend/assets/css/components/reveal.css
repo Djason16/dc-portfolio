@@ -10,6 +10,9 @@
  *   v-reveal="'from-left'" a block coming from the left (the email of Contact)
  *   headers, like their section: 'zoom-group' (projects), 'split' (About me: from the left and the right), 'drop' (Contact), 'line' (services)
  *   v-reveal="'cascade'" a list: its items drop into place one after the other, a mint line above each (the week of Contact)
+ *   v-reveal="'index'"  a row of an editorial index: its number drops in, its name is uncovered from the left like a
+ *                       curtain, then its text fades in and its arrow slides forward (the tools); 'wipe': their header
+ *   v-reveal="'unfold'" a card unfolding from its top edge (the skills)
  * Each section of the home page has its own, so the page never feels the same from top to bottom.
  * Lists set --reveal-delay on their items to come one after the other. Leaving through the bottom (scrolling back up),
  * an element only fades out, to come again next time; above the screen it stays in place.

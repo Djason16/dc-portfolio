@@ -1,18 +1,19 @@
 import { computed, ref } from 'vue'
 import { api } from '@/utils/api'
 
-// Licences of the DC tools in the admin (/api/licenses, server/controllers/LicensesController.ts)
-export const LICENSE_PRODUCTS = ['scaffold', 'prospect', 'sentinel'] as const
-export const PRODUCT_NAMES: Record<string, string> = { scaffold: 'DC Scaffold', prospect: 'DC Prospect', sentinel: 'DC Sentinel' }
-
+// Licences of the DC tools in the admin (/api/licenses, server/controllers/LicensesController.ts). The tools come from the
+// server (dc_license_products: a released tool appears by itself), shared by every modal (useState)
 export const useLicenses = () => {
     const licenses = ref<Record<string, any>[]>([])
+    const products = useState<{ id: string, name: string }[]>('licenseProducts', () => [])
+    const productIds = computed(() => products.value.map(p => p.id))
+    const productNames = computed<Record<string, string>>(() => Object.fromEntries(products.value.map(p => [p.id, p.name])))
     const search = ref('')
     const product = ref('')
 
     const fetchLicenses = async () => {
         const res = await api.get('/licenses')
-        if (res.success) licenses.value = res.licenses
+        if (res.success) licenses.value = res.licenses, products.value = res.products ?? products.value
         return res
     }
 
@@ -59,6 +60,9 @@ export const useLicenses = () => {
     const fetchVersions = () => api.get('/licenses/versions')
     const setVersion = (productId: string, version: string) => api.put('/licenses/versions', { product: productId, version })
 
-    return { licenses, search, product, filtered, fetchLicenses, updateLicense, renewLicense, giftLicense, fetchVersions, setVersion,
+    // The tools only (the gift and offer forms opened without the list)
+    const fetchProducts = async () => products.value.length || await fetchLicenses()
+
+    return { licenses, products, productIds, productNames, fetchProducts, search, product, filtered, fetchLicenses, updateLicense, renewLicense, giftLicense, fetchVersions, setVersion,
         pricing, fetchPricing, setPrice, createOffer, deleteOffer }
 }

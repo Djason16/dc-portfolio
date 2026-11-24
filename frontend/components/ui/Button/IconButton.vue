@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 defineProps({
-    // Name of the icon: check, close, trash, download, sliders, save, chevron-left, chevron-right, pen, copy, plus, euro, video, key
+    // Name of the icon: check, close, trash, download, sliders, save, chevron-left, chevron-right, chevron-up, chevron-down, pen, copy, plus, euro, video, key, refresh, minus, fit
     icon: { type: String, required: true },
     // Tooltip and text read by screen readers
     label: { type: String, required: true },
@@ -34,13 +34,18 @@ const ICONS: Record<string, { path: string, circles?: number[][] }> = {
     download: { path: 'M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14' },
     'chevron-left': { path: 'M14.5 6l-6 6 6 6' },
     'chevron-right': { path: 'M9.5 6l6 6-6 6' },
+    'chevron-up': { path: 'M6 14.5l6-6 6 6' },
+    'chevron-down': { path: 'M6 9.5l6 6 6-6' },
     sliders: { path: 'M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1', circles: [[15, 6], [9, 12], [17, 18]] },
     save: { path: 'M5 4h11l3 3v13H5zM8.5 4v4.5h6V4M8 20v-6h8v6' },
     pen: { path: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4' },
     copy: { path: 'M8 8h11v12H8zM5 16V4h11' },
     plus: { path: 'M12 5v14M5 12h14' },
+    minus: { path: 'M5 12h14' },
+    fit: { path: 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5' },
     euro: { path: 'M17.5 6.5A7 7 0 1 0 17.5 17.5M4 10h9M4 14h9' },
     video: { path: 'M3.5 7h11v10h-11zM14.5 10.5l6-3.5v10l-6-3.5' },
     key: { path: 'M10.5 12a4 4 0 1 1-8 0a4 4 0 0 1 8 0zM10.5 12h11M17.5 12v3.5M20.5 12v2.5' },
+    refresh: { path: 'M19.5 10A8 8 0 0 0 5.2 7.5M4.5 3.5v4h4M4.5 14a8 8 0 0 0 14.3 2.5M19.5 20.5v-4h-4' },
 }
 </script>

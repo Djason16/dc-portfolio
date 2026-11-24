@@ -60,6 +60,9 @@ Quote: its path in order (BillingFlow). Contract: signed. Invoice: the payments 
             </div>
         </section>
 
+        <!-- E-invoice (Factur-X, Super PDP) of a finalized invoice -->
+        <BillingEinvoice v-if="doc.type === 'invoice' && doc.status === 'final'" :doc="doc" />
+
         <!-- By email to the client, the PDF attached (a quote with its contract: both, from its path) -->
         <p v-if="doc.options?.mailedAt" class="billing-actions__note text-body-s">{{ t('billMailedAt', { date: sentDate(doc.options.mailedAt) }) }}</p>
         <div class="billing-actions__buttons">
@@ -81,6 +84,7 @@ import { computed, reactive, watch } from 'vue'
 import HeroButton from '@/components/ui/Button/HeroButton.vue'
 import IconButton from '@/components/ui/Button/IconButton.vue'
 import BillingFlow from '@/components/views/Admin/Billing/BillingFlow.vue'
+import BillingEinvoice from '@/components/views/Admin/Billing/BillingEinvoice.vue'
 import { useLang } from '@/composables/useLang'
 import { useBillingStore } from '@/stores/billing'
 import { paymentState } from '@/utils/billing'

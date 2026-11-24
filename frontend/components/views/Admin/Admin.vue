@@ -69,11 +69,16 @@ import OtherSectionLayout from '@/components/ui/SectionLayout/OtherSectionLayout
 import BillingModal from '@/components/views/Admin/Billing/BillingModal.vue'
 import BookingModal from '@/components/views/Admin/Booking/BookingModal.vue'
 import CalendarModal from '@/components/views/Admin/CalendarModal.vue'
+import CitiesModal from '@/components/views/Admin/CitiesModal.vue'
+import CityFaqModal from '@/components/views/Admin/CityFaqModal.vue'
+import CityFaqsModal from '@/components/views/Admin/CityFaqsModal.vue'
+import CityFormModal from '@/components/views/Admin/CityFormModal.vue'
 import ClientListModal from '@/components/views/Admin/ClientListModal.vue'
 import CreateClientModal from '@/components/views/Admin/CreateClientModal.vue'
 import CreateMissionModal from '@/components/views/Admin/CreateMissionModal.vue'
 import CreateProjectModal from '@/components/views/Admin/CreateProjectModal.vue'
 import EnvModal from '@/components/views/Admin/EnvModal.vue'
+import EinvoiceModal from '@/components/views/Admin/EinvoiceModal.vue'
 import LoungeModal from '@/components/views/Admin/LoungeModal.vue'
 import LicensesModal from '@/components/views/Admin/LicensesModal.vue'
 import LicenseGiftModal from '@/components/views/Admin/LicenseGiftModal.vue'
@@ -89,6 +94,7 @@ import NumberingModal from '@/components/views/Admin/NumberingModal.vue'
 import PasswordModal from '@/components/views/Admin/PasswordModal.vue'
 import ProjectListModal from '@/components/views/Admin/ProjectListModal.vue'
 import UnavailabilityModal from '@/components/views/Admin/UnavailabilityModal.vue'
+import ToolsSyncModal from '@/components/views/Admin/ToolsSyncModal.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useMessage } from '@/composables/useMessage'
 
@@ -110,6 +116,7 @@ const TOOLS: Record<string, Tool> = {
     missions: { opens: true, icon: 'fas fa-tasks', textKey: 'adminMissions', component: MissionListModal },
     mission: { textKey: 'adminCreateMissions', component: CreateMissionModal },
     billing: { icon: 'fas fa-file-invoice-dollar', textKey: 'adminBilling', component: BillingModal },
+    einvoice: { opens: true, icon: 'fas fa-file-code', textKey: 'adminEinvoice', component: EinvoiceModal },
     numbering: { icon: 'fas fa-hashtag', textKey: 'adminNumbering', component: NumberingModal },
     rates: { icon: 'fas fa-percent', textKey: 'adminInterestRates', component: InterestRatesListModal },
     calendar: { icon: 'fas fa-calendar-alt', textKey: 'adminCalendar', component: CalendarModal },
@@ -119,11 +126,16 @@ const TOOLS: Record<string, Tool> = {
     license: { textKey: 'adminGiftLicense', component: LicenseGiftModal },
     pricing: { opens: true, textKey: 'licensePricingButton', component: LicensePricingModal },
     offer: { textKey: 'licenseNewOffer', component: LicenseOfferModal },
+    toolsSync: { icon: 'fas fa-rotate', textKey: 'adminToolsSync', component: ToolsSyncModal },
     unavailability: { icon: 'fas fa-calendar-times', textKey: 'adminUnavailability', component: UnavailabilityModal },
     override: { icon: 'fas fa-toggle-on', textKey: 'adminManualOverride', component: ManualOverrideModal },
     projects: { opens: true, icon: 'fas fa-folder-open', textKey: 'adminProjects', component: ProjectListModal },
     project: { textKey: 'adminCreateProjects', component: CreateProjectModal },
     skills: { icon: 'fas fa-layer-group', textKey: 'adminSkills', component: SkillsModal },
+    cities: { opens: true, icon: 'fas fa-map-location-dot', textKey: 'adminCities', component: CitiesModal },
+    city: { textKey: 'adminCityForm', component: CityFormModal },
+    cityFaqs: { opens: true, textKey: 'adminCityFaqs', component: CityFaqsModal },
+    cityFaq: { textKey: 'adminCityFaq', component: CityFaqModal },
     texts: { icon: 'fas fa-pen-to-square', textKey: 'adminTexts', component: TextsModal },
     settings: { icon: 'fas fa-id-card', textKey: 'adminSettings', component: SettingsModal },
     password: { icon: 'fas fa-key', textKey: 'adminPassword', component: PasswordModal },
@@ -132,8 +144,8 @@ const TOOLS: Record<string, Tool> = {
 
 // Cards of the dashboard, by task (code: prefix of the cards, TR-01...); the settings only when unfolded
 const GROUPS = [
-    { key: 'adminGroupWork', code: 'TR', tools: ['billing', 'clients', 'missions', 'licenses'] },
-    { key: 'adminGroupSite', code: 'SI', tools: ['projects', 'skills', 'texts', 'calendar', 'bookings', 'lounge', 'unavailability', 'override'] },
+    { key: 'adminGroupWork', code: 'TR', tools: ['billing', 'einvoice', 'clients', 'missions', 'licenses', 'toolsSync'] },
+    { key: 'adminGroupSite', code: 'SI', tools: ['projects', 'skills', 'cities', 'texts', 'calendar', 'bookings', 'lounge', 'unavailability', 'override'] },
     { key: 'adminGroupSettings', code: 'RE', tools: ['settings', 'numbering', 'rates', 'password', 'env'], folded: true },
 ]
 const showSettings = ref(false)

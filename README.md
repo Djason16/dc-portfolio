@@ -29,7 +29,7 @@ developer** and **audiovisual post-production** specialist (editing, compositing
 Hauts-de-France (France).
 
 One **Nuxt 4** project holds both the site and its API (Nitro), organized like a
-[DC Scaffold](https://github.com/Djason16/dc-scaffold "DC Scaffold on GitHub") project. Besides the public pages
+[DC Scaffold](https://tools.djason-chery.dev/en/scaffold/ "Discover DC Scaffold") project. Besides the public pages
 (projects, skills, services, appointment booking, online payment), a private admin space manages clients, missions,
 projects, skills and availability, makes quotes, invoices and contracts as PDF, and takes payments with Stripe.
 
@@ -236,4 +236,4 @@ room backgrounds (`frontend/public/mediapipe/`, `@mediapipe/tasks-vision`) are A
 - Video room backgrounds: **MediaPipe** Image Segmenter and the `selfie_segmenter` model (Apache 2.0, Google).
 - Admin auto-translation: **MyMemory**.
 - Design and development: [Djason CHERY](https://djason-chery.dev "Djason CHERY's website"), with
-  [DC Scaffold](https://github.com/Djason16/dc-scaffold "DC Scaffold on GitHub").
+  [DC Scaffold](https://tools.djason-chery.dev/en/scaffold/ "Discover DC Scaffold").

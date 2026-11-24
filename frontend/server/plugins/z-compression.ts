@@ -12,7 +12,28 @@ import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 // Smaller pages are not worth it
 const MIN_BYTES = 1024
 
+// Brotli (else gzip) of a text for the encodings the browser accepts, or null when it accepts neither
+const compress = (text: string, accepted: string): { body: Buffer, encoding: string } | null => {
+    if (/\bbr\b/.test(accepted)) return { body: brotliCompressSync(Buffer.from(text), { params: { [constants.BROTLI_PARAM_QUALITY]: 5 } }), encoding: 'br' }
+    if (/\bgzip\b/.test(accepted)) return { body: gzipSync(Buffer.from(text)), encoding: 'gzip' }
+    return null
+}
+
 export default defineNitroPlugin((nitroApp) => {
+    // JSON read by the pages (GET /api/projects, /api/skills...): compressed too, the host sends it as it is
+    nitroApp.hooks.hook('beforeResponse', (event, response) => {
+        if (event.method !== 'GET' || !event.path.startsWith('/api/') || event.node.res.headersSent) return
+        const body = response.body
+        if (body === null || body === undefined || Buffer.isBuffer(body) || typeof body !== 'object' || typeof (body as { pipe?: unknown }).pipe === 'function') return
+        const text = JSON.stringify(body)
+        if (text.length < MIN_BYTES) return
+        const packed = compress(text, String(getRequestHeader(event, 'accept-encoding') ?? ''))
+        if (!packed) return
+        setResponseHeaders(event, { 'content-type': 'application/json; charset=utf-8', 'content-encoding': packed.encoding, vary: 'Accept-Encoding' })
+        response.body = packed.body
+    })
+
+
     nitroApp.hooks.hook('render:response', (response, { event }) => {
         if (event.path.includes('/__nuxt_error')) {
             response.headers = { ...response.headers, 'x-robots-tag': 'noindex, nofollow' }

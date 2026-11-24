@@ -1,5 +1,7 @@
 import { useHead } from "#imports";
 import { withTrailingSlash } from './pathHelpers';
+import { socialProfilesOf } from './socialNetworks';
+import { localityOf } from './citySeo';
 
 // SEO of every page: seoConfig below, seoMetaData() builds the <head> of one page (composables/useSeo.js)
 
@@ -97,9 +99,9 @@ const seoConfig: Record<string, { url: string, image?: string, keywords?: string
     }
 }
 
-// Generates SEO metadata for a page ("site" = useSite(), like the buildSeo of DC Scaffold (https://github.com/Djason16/dc-scaffold))
+// Generates SEO metadata for a page ("site" = useSite(), like the buildSeo of DC Scaffold (https://tools.djason-chery.dev/en/scaffold/))
 export const seoMetaData = (pageKey: string, lang: { current: { value: string }, getTranslation: (key: string, values?: Record<string, string | number>) => string }, site: Record<string, string>) => {
-    const { name, url: baseUrl, email, phone, tva: tvaNumber, linkedin, github, malt, instagram, tiktok, facebook, area } = site
+    const { name, url: baseUrl, email, phone, tva: tvaNumber, socialLinks, area, invoiceAddress } = site
 
     const {
         url = "",
@@ -131,6 +133,7 @@ export const seoMetaData = (pageKey: string, lang: { current: { value: string },
         : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 
     const socialImage = `${baseUrl}${image}`
+    const locality = localityOf(invoiceAddress ?? "")
 
     // Structured data (schema.org) read by Google: the business behind the site
     const professionalServiceSchema: Record<string, unknown> = {
@@ -148,13 +151,15 @@ export const seoMetaData = (pageKey: string, lang: { current: { value: string },
             "@type": "Country",
             name: "France"
         },
-        // The region only (admin > My info: area), never the town
+        // The town and postal code of the billing address (admin > My info, local search) and the region; never the street
         address: {
             "@type": "PostalAddress",
+            ...(locality ? { postalCode: locality.postalCode, addressLocality: locality.locality } : {}),
             ...(area && area.includes(',') ? { addressRegion: (area.split(',')[0] ?? '').trim() } : {}),
             addressCountry: "FR"
         },
-        sameAs: [linkedin, github, malt, instagram, tiktok, facebook].filter(Boolean),
+        // Profiles of admin > My info, in their order (not the WhatsApp chat link)
+        sameAs: socialProfilesOf(socialLinks),
         serviceType: [
             "Web Development",
             "SEO",

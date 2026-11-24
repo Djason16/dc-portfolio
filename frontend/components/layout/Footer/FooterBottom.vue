@@ -13,6 +13,7 @@
                 <a v-for="item in sections" :key="item.id" :href="`/#${item.id}`" :title="t(item.translationKey)" @click.prevent="goTo(item.id)">{{ t(item.translationKey) }}</a>
                 <NuxtLink :to="withTrailingSlash('/book')" :title="t('book')">{{ t('book') }}</NuxtLink>
                 <NuxtLink :to="withTrailingSlash('/pay-me')" :title="t('payMe')">{{ t('payMe') }}</NuxtLink>
+                <NuxtLink :to="withTrailingSlash('/zone-intervention')" :title="t('footerZone')">{{ t('footerZone') }}</NuxtLink>
             </nav>
 
             <div class="footer-column">
@@ -22,10 +23,10 @@
                 <p v-if="site.area">{{ site.area }}</p>
             </div>
 
-            <!-- Social links (admin > My info), only the ones filled in -->
+            <!-- Social links (admin > My info), in their order -->
             <nav v-if="socials.length" class="footer-column" :aria-label="t('footerSocialTitle')">
                 <p class="eyebrow footer-column__title">{{ t('footerSocialTitle') }}</p>
-                <a v-for="social in socials" :key="social.label" :href="social.link" :title="social.label" target="_blank" rel="noopener noreferrer">{{ social.label }}</a>
+                <a v-for="(social, i) in socials" :key="i" :href="social.url" :title="social.title" target="_blank" rel="noopener noreferrer">{{ social.label }}</a>
             </nav>
 
             <!-- Legal pages only -->
@@ -61,6 +62,7 @@ import { useSite } from '@/composables/useSite'
 import { useUserPreferencesStore } from '@/stores/userPreferences'
 import { withTrailingSlash } from '@/utils/pathHelpers'
 import { goToSection } from '@/utils/scroll'
+import { socialLabelOf, socialLinksOf } from '@/utils/socialNetworks'
 
 const { getTranslation: t } = useLang()
 const site = useSite()
@@ -86,16 +88,11 @@ const sections = [
 // Goes to the home page if needed, then to the section (utils/scroll.js)
 const goTo = (id: string) => goToSection(router, id)
 
-// Social links filled in (admin > My info)
-const socials = computed(() => [
-    { label: 'LinkedIn', link: site.linkedin },
-    { label: 'GitHub', link: site.github },
-    { label: 'Malt', link: site.malt },
-    { label: 'Instagram', link: site.instagram },
-    { label: 'TikTok', link: site.tiktok },
-    { label: 'Facebook', link: site.facebook },
-    { label: 'WhatsApp', link: site.whatsapp },
-].filter(social => social.link))
+// Social links of admin > My info, in their order (utils/socialNetworks.ts); the title says where the link goes
+const socials = computed(() => socialLinksOf(site.socialLinks).map(link => {
+    const label = socialLabelOf(link)
+    return { url: link.url, label, title: t(`socialTitle_${link.network}`, { label }) }
+}))
 
 // Legal pages
 const legalLinks = [

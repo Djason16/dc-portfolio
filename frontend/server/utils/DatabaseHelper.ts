@@ -6,7 +6,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 const ID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz'
 
 /*
- * Database access (DC Scaffold convention: https://github.com/Djason16/dc-scaffold, same four methods as every DC Scaffold back end).
+ * Database access (DC Scaffold convention: https://tools.djason-chery.dev/en/scaffold/, same four methods as every DC Scaffold back end).
  * MySQL through mysql2, with the DB_HOST, DB_PORT, DB_NAME, DB_USER and DB_PASS values of the .env file.
  * Locally: the MySQL of docker-compose.yml (phpMyAdmin on http://localhost:8081). Online: the MySQL database of the host.
  *

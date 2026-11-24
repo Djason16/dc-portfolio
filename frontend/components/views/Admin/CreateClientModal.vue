@@ -60,7 +60,7 @@ const formLoading = ref(false)
 const clientTypeOptions = getClientTypeOptions()
 
 // Reactive form data
-const refsMap = reactive<Record<string, any>>({ firstname: '', lastname: '', company_name: '', email: '', phone: '', address: '', postal_code: '', city: '', siret: '', type: 'individual', active: true })
+const refsMap = reactive<Record<string, any>>({ firstname: '', lastname: '', company_name: '', email: '', phone: '', address: '', postal_code: '', city: '', country: 'FR', siret: '', vat_number: '', einvoice_address: '', type: 'individual', active: true })
 
 // Computes visible fields and group them by layout
 const visibleFields = computed(() => getVisibleFields(refsMap.type))
@@ -71,6 +71,7 @@ const close = () => {
     Object.keys(refsMap).forEach(k => {
         if (k === 'type') refsMap[k] = 'individual'
         else if (k === 'active') refsMap[k] = true
+        else if (k === 'country') refsMap[k] = 'FR'
         else refsMap[k] = ''
     })
     clearMessage()

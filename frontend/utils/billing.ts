@@ -33,7 +33,7 @@ export type PlanStep = { key: string, kind: 'standard' | 'deposit' | 'installmen
 // A payment received for a document
 export type Payment = { id: string, date: string, amount: number, method: string, note: string }
 // Copy of the client printed on a finalized document
-export type DocumentClient = { id?: string, tva?: string, type?: string, name?: string, firstname?: string, lastname?: string, contact?: string, email?: string, phone?: string, address?: string, postalCode?: string, city?: string, siret?: string }
+export type DocumentClient = { id?: string, tva?: string, type?: string, name?: string, firstname?: string, lastname?: string, contact?: string, email?: string, phone?: string, address?: string, postalCode?: string, city?: string, siret?: string, country?: string, einvoiceAddress?: string }
 // Automatic debit of a quote (the card kept by Stripe)
 export type Autopay = {
     active?: boolean, customer?: string, paymentMethod?: string, card?: string, email?: string, error?: string

@@ -1,5 +1,6 @@
 import type Stripe from 'stripe'
-import { LICENSE_OFFERS, type LicenseOffer } from './LicenseSchema'
+import { type LicenseOffer } from './LicenseSchema'
+import { LicenseProducts } from './LicenseProducts'
 
 /*
  * Prices and current offers of the DC tools, read from Stripe (the only place to change them), kept 5 minutes:
@@ -23,7 +24,7 @@ const fresh = <T>(cache: { at: number, value: T } | null) => cache && Date.now()
 
 const toOffer = (coupon: Stripe.Coupon): DcOffer | null => {
     const product = coupon.metadata?.dc_product
-    if (!coupon.valid || !(product === 'all' || (LICENSE_OFFERS as readonly string[]).includes(String(product)))) return null
+    if (!coupon.valid || !(product === 'all' || [...LicenseProducts.cachedIds(), 'bundle'].includes(String(product)))) return null
     return {
         id: coupon.id, product: product as DcOffer['product'], percentOff: coupon.percent_off ?? null,
         amountOff: coupon.amount_off ?? null, duration: coupon.duration as DcOffer['duration'], months: coupon.duration_in_months ?? null,
@@ -44,6 +45,7 @@ export const LicenseOffers = {
         const cached = fresh(offersCache)
         if (cached) return cached
         try {
+            await LicenseProducts.rows()
             const coupons = await StripeHelper.client().coupons.list({ limit: 100 })
             const value = coupons.data.map(toOffer).filter((o): o is DcOffer => Boolean(o) && (o!.remaining === null || o!.remaining > 0))
             offersCache = { at: Date.now(), value }
@@ -63,12 +65,15 @@ export const LicenseOffers = {
     async prices() {
         const cached = fresh(pricesCache)
         if (cached) return cached
-        const keys = LICENSE_OFFERS.flatMap(o => [`dc_${o}_month`, `dc_${o}_year`])
+        const offers = await LicenseProducts.offers()
+        const keys = offers.flatMap(o => [`dc_${o}_month`, `dc_${o}_year`])
         try {
-            const prices = await StripeHelper.client().prices.list({ lookup_keys: keys, active: true, limit: 20 })
+            // Stripe takes 10 lookup keys at most per call: one call per group of 10
+            const groups = Array.from({ length: Math.ceil(keys.length / 10) }, (_, i) => keys.slice(i * 10, i * 10 + 10))
+            const lists = await Promise.all(groups.map(lookup_keys => StripeHelper.client().prices.list({ lookup_keys, active: true, limit: 20 })))
             const value: Record<string, { month: number | null, year: number | null }> = {}
-            for (const offer of LICENSE_OFFERS) value[offer] = { month: null, year: null }
-            for (const price of prices.data) {
+            for (const offer of offers) value[offer] = { month: null, year: null }
+            for (const price of lists.flatMap(list => list.data)) {
                 const match = /^dc_(\w+)_(month|year)$/.exec(price.lookup_key || '')
                 if (match && value[match[1]!]) value[match[1]!]![match[2] as 'month' | 'year'] = price.unit_amount
             }

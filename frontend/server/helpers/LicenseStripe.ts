@@ -1,12 +1,16 @@
 import type Stripe from 'stripe'
-import { LICENSE_PRICES, isOffer, productsOfOffer, type LicenseOffer } from './LicenseSchema'
+import { type LicenseOffer } from './LicenseSchema'
+import { LicenseProducts } from './LicenseProducts'
 
 /*
  * Stripe side of the DC tools licences (server/controllers/LicensesController.ts):
  *   LicenseStripe.checkout(product, interval, lang)   Stripe Checkout page of a Pro subscription (best running offer applied)
- *   LicenseStripe.handle(event)                       webhook events: key created and e-mailed after the first payment,
- *                                                     end of access kept in line with the subscription (renewal, cancel)
- *   LicenseStripe.portal(key)                         Stripe customer portal of a key (card, invoices, cancel)
+ *   LicenseStripe.handle(event)                       webhook events: key created and e-mailed once the first payment is paid
+ *                                                     (at once, or later for a delayed payment: async_payment_succeeded),
+ *                                                     end of access kept in line with the subscription (renewal, cancel);
+ *                                                     a renewal not paid (past_due, incomplete) never pushes the end of access
+ *   LicenseStripe.portal(customer, lang)              Stripe customer portal of a customer (card, invoices, cancel), opened
+ *                                                     only from a one-time link e-mailed to the buyer (LicensePortal.ts)
  *   LicenseStripe.renewal(subscriptionId)             next renewal date, or cancelled (page /licenses/manage/)
  * Prices are found by their lookup key dc_<product>_<interval> (created by scripts/stripe-licenses.mjs): no price id in the .env files.
  */
@@ -31,27 +35,35 @@ const accessEnd = (sub: Stripe.Subscription) => {
     return sub.cancel_at_period_end ? end : new Date(end.getTime() + GRACE_MS)
 }
 
+// Waiting for a payment: Stripe already moved the period on, but nothing is paid. The end of access stays the one of the
+// last paid period (+ grace); paid later (invoice.paid), it moves on; never paid (unpaid, canceled), it ends
+const UNPAID = ['past_due', 'incomplete']
+
 const syncSubscription = async (sub: Stripe.Subscription) => {
     const license = await LicenseHelper.bySubscription(sub.id)
-    if (!license) return
+    if (!license || UNPAID.includes(sub.status)) return
     await LicenseHelper.update(license.id, { expiresAt: accessEnd(sub)?.toISOString() ?? null })
 }
 
-// First payment of a subscription: one key per subscription (a second event for the same subscription changes nothing)
+// First payment of a subscription: one key per subscription (a second event for the same subscription changes nothing).
+// Only once paid: a delayed payment method (SEPA debit...) completes the session unpaid, the key waits for
+// checkout.session.async_payment_succeeded. no_payment_required: nothing to pay (a 100 % coupon), Stripe says it is due
+const PAID = ['paid', 'no_payment_required']
 const createFromSession = async (session: Stripe.Checkout.Session) => {
     const product = session.metadata?.dc_product
-    if (session.mode !== 'subscription' || !isOffer(product) || !session.subscription) return
+    if (session.mode !== 'subscription' || !(await LicenseProducts.isOffer(product)) || !session.subscription || !PAID.includes(session.payment_status)) return
+    const products = await LicenseProducts.productsOfOffer(product as string)
     const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription.id
     if (await LicenseHelper.bySubscription(subscriptionId)) return
     const sub = await stripe().subscriptions.retrieve(subscriptionId)
     const email = session.customer_details?.email || ''
     const language = session.metadata?.dc_lang === 'en' ? 'en' : 'fr'
     const { key } = await LicenseHelper.create({
-        email, name: session.customer_details?.name || '', language, products: productsOfOffer(product), source: 'stripe',
+        email, name: session.customer_details?.name || '', language, products, source: 'stripe',
         expiresAt: accessEnd(sub), stripeCustomer: typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null,
         stripeSubscription: subscriptionId, billingInterval: sub.items?.data?.[0]?.price?.recurring?.interval ?? null,
     })
-    await LicenseMails.sendKey({ key, email, language, products: productsOfOffer(product), bought: true })
+    await LicenseMails.sendKey({ key, email, language, products, bought: true })
 }
 
 export const LicenseStripe = {
@@ -75,7 +87,7 @@ export const LicenseStripe = {
             cancel_url: toolPage(product, lang),
             locale: lang,
             metadata,
-            subscription_data: { metadata, description: LICENSE_PRICES[product].name },
+            subscription_data: { metadata, description: await LicenseProducts.subscriptionName(product) },
             // Express request for immediate access and waiver of the withdrawal right (digital content, art. L221-28 13°):
             // a box the customer must tick, its text below
             consent_collection: { terms_of_service: 'required' },
@@ -105,7 +117,7 @@ export const LicenseStripe = {
 
     /** Webhook events of the licences (other events are ignored here). */
     async handle(event: Stripe.Event) {
-        if (event.type === 'checkout.session.completed') return createFromSession(event.data.object as Stripe.Checkout.Session)
+        if (['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(event.type)) return createFromSession(event.data.object as Stripe.Checkout.Session)
         if (['customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type))
             return syncSubscription(event.data.object as Stripe.Subscription)
         if (event.type === 'invoice.paid') {
@@ -127,10 +139,8 @@ export const LicenseStripe = {
         }
     },
 
-    /** Stripe customer portal of a bought key; null for an unknown or offered key. */
-    async portal(key: unknown, lang: 'fr' | 'en') {
-        const customer = await LicenseHelper.customerOf(key)
-        if (!customer) return null
+    /** Address of the Stripe customer portal of a customer (from a one-time link, LicensePortal.ts). */
+    async portal(customer: string, lang: 'fr' | 'en') {
         // The portal settings made for the licences (scripts/stripe-licenses.mjs), else the default ones of the account
         const configs = await stripe().billingPortal.configurations.list({ active: true, limit: 100 })
         const configuration = configs.data.find(c => c.metadata?.dc_licenses === '1')?.id

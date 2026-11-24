@@ -28,7 +28,7 @@ Le site de [Djason CHERY](https://djason-chery.dev "Site de Djason CHERY"), **d�
 spécialiste de la **post-production audiovisuelle** (montage, compositing, effets visuels), dans les Hauts-de-France.
 
 Un seul projet **Nuxt 4** contient le site et son API (Nitro), rangé comme un projet
-[DC Scaffold](https://github.com/Djason16/dc-scaffold "DC Scaffold sur GitHub"). En plus des pages publiques (projets,
+[DC Scaffold](https://tools.djason-chery.dev/fr/scaffold/ "Découvrir DC Scaffold"). En plus des pages publiques (projets,
 compétences, services, prise de rendez-vous, paiement en ligne), un espace d'administration privé gère les clients, les
 missions, les projets, les compétences et les disponibilités, fait les devis, factures et contrats en PDF et encaisse
 les paiements avec Stripe.
@@ -238,4 +238,4 @@ arrière-plans du salon visio (`frontend/public/mediapipe/`, `@mediapipe/tasks-v
 - Arrière-plans du salon visio : **MediaPipe** Image Segmenter et modèle `selfie_segmenter` (Apache 2.0, Google).
 - Traduction automatique de l'admin : **MyMemory**.
 - Conception et développement : [Djason CHERY](https://djason-chery.dev "Site de Djason CHERY"), avec
-  [DC Scaffold](https://github.com/Djason16/dc-scaffold "DC Scaffold sur GitHub").
+  [DC Scaffold](https://tools.djason-chery.dev/fr/scaffold/ "Découvrir DC Scaffold").

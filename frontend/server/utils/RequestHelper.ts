@@ -40,11 +40,12 @@ export const RequestHelper = {
     },
 
     /**
-     * Visitor IP (this site). Behind Apache, the last X-Forwarded-For entry is the one Apache added: the visitor can write
-     * the first ones himself, so they never count (a robot would change them to get past the attempt limits).
-     * Without a proxy, the socket address.
+     * Visitor IP (this site). Behind Apache (socket on a loopback or private address), the last X-Forwarded-For entry is the
+     * one Apache added: the visitor can write the first ones himself, so they never count (a robot would change them to get
+     * past the attempt limits). No socket address (a pipe: the dev server of Nuxt in front) counts as a proxy too.
+     * Any other socket is the visitor himself: its address, X-Forwarded-For ignored.
      */
     ip(event: H3Event) {
-        return SecurityHelper.ip(getRequestHeader(event, 'x-forwarded-for'), getRequestIP(event) || 'unknown')
+        return SecurityHelper.ip(getRequestHeader(event, 'x-forwarded-for'), getRequestIP(event) ?? '')
     },
 }

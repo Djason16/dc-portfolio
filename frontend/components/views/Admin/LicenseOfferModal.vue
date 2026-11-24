@@ -6,7 +6,7 @@
             <label for="offer-product">{{ t('licenseProducts') }}</label>
             <select id="offer-product" v-model="form.product" :title="t('licenseProducts')">
                 <option value="all">{{ t('licenseAllOffers') }}</option>
-                <option v-for="id in [...LICENSE_PRODUCTS, 'bundle']" :key="id" :value="id">{{ id === 'bundle' ? 'DC complet' : PRODUCT_NAMES[id] }}</option>
+                <option v-for="id in [...productIds, 'bundle']" :key="id" :value="id">{{ id === 'bundle' ? 'DC complet' : productNames[id] }}</option>
             </select>
         </div>
         <div class="form-group">
@@ -49,14 +49,15 @@ import { reactive, ref } from 'vue'
 import FormModal from '@/components/ui/Modal/FormModal.vue'
 import { useLang } from '@/composables/useLang'
 import { useMessage } from '@/composables/useMessage'
-import { LICENSE_PRODUCTS, PRODUCT_NAMES, useLicenses } from '@/composables/useLicenses'
+import { useLicenses } from '@/composables/useLicenses'
 import { showSuccess } from '@/utils/dialog'
 
 defineProps({ show: Boolean })
 const emit = defineEmits(['close'])
 const { getTranslation: t } = useLang()
 const { translatedMessage, showMessage, clearMessage } = useMessage()
-const { createOffer } = useLicenses()
+const { createOffer, productIds, productNames, fetchProducts } = useLicenses()
+fetchProducts()
 
 const empty = () => ({ product: 'all', percentOff: 20, duration: 'once', months: 3, maxRedemptions: null as number | null, redeemBy: '', labelFr: '', labelEn: '' })
 const form = reactive(empty())

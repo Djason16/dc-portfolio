@@ -66,6 +66,8 @@ const clientSnapshot = async (clientId: string | null | undefined) => {
         id: c.id, type: c.type, name: c.company_name || `${c.firstname || ''} ${c.lastname || ''}`.trim(),
         contact: c.company_name ? `${c.firstname || ''} ${c.lastname || ''}`.trim() : '',
         email: c.email || '', phone: c.phone || '', address: c.address || '', postalCode: c.postal_code || '', city: c.city || '', siret: c.siret || '',
+        // E-invoice (FacturXData.ts): country of the address, VAT number, electronic invoicing address
+        country: c.country || 'FR', tva: c.vat_number || '', einvoiceAddress: c.einvoice_address || '',
     }
 }
 
@@ -93,6 +95,8 @@ export const DocumentsHelper = {
 
         const merged: Record<string, any> = { ...(current || { type: NUMBERING_TYPES.includes(body.type) ? body.type : 'quote', lines: [], paymentPlan: { mode: 'full' }, deductions: [], options: {} }) }
         for (const key of Object.keys(EDITABLE)) if (body[key] !== undefined) merged[key] = body[key]
+        // The deposits taken off a new balance invoice count in its totals at once (they are saved with it below)
+        if (!current && Array.isArray(body.deductions)) merged.deductions = body.deductions
         merged.lines = cleanLines(merged.lines)
         merged.discountType = ['percent', 'amount'].includes(merged.discountType) ? merged.discountType : null
         const totals = documentTotals(merged)

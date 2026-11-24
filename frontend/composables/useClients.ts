@@ -30,7 +30,9 @@ export function useClients() {
             firstname: item.firstname || null,
             lastname: item.lastname || null,
             company_name: item.company_name || null,
-            siret: item.siret || null
+            siret: item.siret || null,
+            vat_number: item.vat_number || null,
+            einvoice_address: item.einvoice_address || null
         })
         if (res.success) adminData.invalidate('missions')
         return res
@@ -86,13 +88,18 @@ export function useClients() {
         { id: 'address', labelKey: 'address', placeholderKey: 'enterAddress', type: 'text', required: false, autocomplete: 'street-address' },
         { id: 'postal_code', labelKey: 'postalCode', placeholderKey: 'enterPostalCode', type: 'text', required: false, autocomplete: 'postal-code' },
         { id: 'city', labelKey: 'city', placeholderKey: 'enterCity', type: 'text', required: false, autocomplete: 'address-level2' },
-        { id: 'siret', labelKey: 'siret', placeholderKey: 'enterSiret', type: 'text', required: false, autocomplete: 'off' }
+        { id: 'siret', labelKey: 'siret', placeholderKey: 'enterSiret', type: 'text', required: false, autocomplete: 'off' },
+        // E-invoices (French reform): country code (FR by default), VAT number and electronic invoicing address of a business
+        { id: 'country', labelKey: 'clientCountry', placeholderKey: 'enterCountry', type: 'text', required: false, autocomplete: 'country' },
+        { id: 'vat_number', labelKey: 'clientVatNumber', placeholderKey: 'enterVatNumber', type: 'text', required: false, autocomplete: 'off' },
+        { id: 'einvoice_address', labelKey: 'clientEinvoiceAddress', placeholderKey: 'enterEinvoiceAddress', type: 'text', required: false, autocomplete: 'off' }
     ]
 
     // Professional clients have a company name, individuals a first and last name
     const getVisibleFields = (type: string) => {
         if (isProfessionalType(type)) return clientFields.filter(f => !['firstname', 'lastname'].includes(f.id))
-        return clientFields.filter(f => f.id !== 'company_name')
+        // A consumer: no VAT number nor e-invoicing address (his invoices are e-reported, never e-invoices)
+        return clientFields.filter(f => !['company_name', 'vat_number', 'einvoice_address'].includes(f.id))
     }
 
     // Fields grouped into the rows of the form
@@ -106,6 +113,7 @@ export function useClients() {
         addGroup(['address'])
         addGroup(['postal_code', 'city'])
         addGroup(['company_name', 'siret'])
+        addGroup(['country', 'vat_number'])
 
         const usedIds = groups.flat().map(f => f.id)
         visibleFields.filter(f => !usedIds.includes(f.id)).forEach(f => groups.push([f]))

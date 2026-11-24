@@ -9,6 +9,10 @@ const setUp = async () => {
     await DatabaseSchema.init()
     console.log('✅ Database tables verified')
 
+    // Social links of before (one setting per network) moved into the ordered list socialLinks, once
+    const moved = await SettingsHelper.migrateSocialLinks()
+    if (moved) console.log(`🔗 ${moved} social link(s) moved into the list of admin > My info`)
+
     const admin = await DatabaseSchema.ensureAdmin(useRuntimeConfig())
     if (admin === 'created') console.log('🎉 Admin account created')
     if (admin === 'missing-credentials') console.warn('⚠️ No admin account: set ADMIN_EMAIL, ADMIN_PASSWORD and ADMIN_NAME')

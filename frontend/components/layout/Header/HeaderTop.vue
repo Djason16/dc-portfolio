@@ -7,7 +7,7 @@
                 <NuxtLink to="/" class="header-top__logo-link"
                     :title="`${siteName} - ${t('home')}`">
                     <AppImage :src="logoPath" :alt="siteName" :title="`${siteName} - ${t('home')}`"
-                        class="header-top__logo" width="200" height="80" priority :fallback="''" />
+                        class="header-top__logo" width="561" height="157" priority :fallback="''" />
                 </NuxtLink>
             </div>
 

@@ -4,7 +4,7 @@ import { watch } from 'vue'
 import { seoMetaData } from '@/utils/seo'
 
 // <head> of a page from the SEO config of utils/seo.ts (title, description, Open Graph, JSON-LD),
-// rendered in the generated HTML and updated when the language changes (DC Scaffold (https://github.com/Djason16/dc-scaffold), used as useSeo('index')
+// rendered in the generated HTML and updated when the language changes (DC Scaffold (https://tools.djason-chery.dev/en/scaffold/), used as useSeo('index')
 export const useSeo = (pageKey: string) => {
     const lang = useLang()
     const site = useSite()

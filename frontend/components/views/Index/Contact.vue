@@ -24,7 +24,8 @@
             </div>
             <div v-if="site.area" class="contact-section__item text-body-l">
                 <span class="eyebrow">{{ t('aboutLocationLabel') }}</span>
-                <span>{{ site.area }}</span>
+                <!-- The towns where I work (city pages): /zone-intervention/ -->
+                <NuxtLink :to="withTrailingSlash('/zone-intervention')" :title="t('footerZone')">{{ site.area }}</NuxtLink>
             </div>
             <!-- Booking page (a call, a video call, a meeting) and the email, side by side -->
             <div class="contact-section__actions">

@@ -5,7 +5,7 @@
 **DOC-03** &nbsp;·&nbsp; [← Documentation](README.md)
 
 One Nuxt 4 project in `frontend/`: the site (Vue) and the API (Nitro) are built and deployed together, with one server.
-The folders and responsibilities follow the [DC Scaffold](https://github.com/Djason16/dc-scaffold) conventions.
+The folders and responsibilities follow the [DC Scaffold](https://tools.djason-chery.dev/en/scaffold/) conventions.
 
 ## 01 — Folders
 

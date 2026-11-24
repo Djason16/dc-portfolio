@@ -2,6 +2,7 @@ import { paymentState } from '~/utils/billing'
 import { DocumentMails } from '../templates/DocumentMails'
 import { DatabaseHelper } from '../utils/DatabaseHelper'
 import { DocumentsHelper, type Document } from './DocumentsHelper'
+import { FacturXHelper } from './FacturXHelper'
 import { MailHelper } from './MailHelper'
 import { PayLinkHelper } from './PayLinkHelper'
 import { SettingsHelper } from './SettingsHelper'
@@ -63,7 +64,8 @@ export const DocumentMailHelper = {
                 : DocumentMails.paid({ invoice: doc.number, title: doc.title, amount: payments.at(-1)?.amount ?? doc.netToPay, remaining }, settings)
             await MailHelper.send({
                 to, bcc: owner(settings), replyTo: settings.email || undefined, ...mail,
-                attachments: files.map(file => ({ filename: fileName(file.name), content: Buffer.from(file.pdf, 'base64'), contentType: 'application/pdf' })),
+                // An invoice goes as its Factur-X (the same PDF with its e-invoice XML inside, FacturXHelper)
+                attachments: await Promise.all(files.map(async file => ({ filename: fileName(file.name), content: await FacturXHelper.attachment(all, file), contentType: 'application/pdf' }))),
             })
             const mailedAt = new Date().toISOString()
             for (const sent of all) await setOptions(sent, { mailedAt, ...(sent.id === doc.id ? { mailPending: false } : {}) })

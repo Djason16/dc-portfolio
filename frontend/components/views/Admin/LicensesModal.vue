@@ -41,13 +41,13 @@ import IconButton from '@/components/ui/Button/IconButton.vue'
 import { padIndex } from '@/utils/display'
 import { useLang } from '@/composables/useLang'
 import { useModalData } from '@/composables/useLiveData'
-import { LICENSE_PRODUCTS, PRODUCT_NAMES, useLicenses } from '@/composables/useLicenses'
+import { useLicenses } from '@/composables/useLicenses'
 import { showAlert, showChoice, showConfirm, showFailure, showPrompt, showResult, showSuccess } from '@/utils/dialog'
 
 const props = defineProps({ show: Boolean })
 const emit = defineEmits(['close', 'open'])
 const { getTranslation: t } = useLang()
-const { search, filtered, licenses, fetchLicenses, updateLicense, renewLicense, fetchVersions, setVersion } = useLicenses()
+const { search, filtered, licenses, productIds, productNames, fetchLicenses, updateLicense, renewLicense, fetchVersions, setVersion } = useLicenses()
 
 const KINDS = ['paid', 'gift', 'trial'] as const
 const kind = ref('')
@@ -69,17 +69,27 @@ const figures = computed(() => {
 
 const date = (value: unknown) => value ? new Date(String(value)).toLocaleDateString() : ''
 const day = (value: unknown) => value ? new Date(String(value)).toISOString().slice(0, 10) : ''
-const toolsOf = (ids: string[]) => ids.length === LICENSE_PRODUCTS.length ? t('licenseAllTools') : LICENSE_PRODUCTS.filter(id => ids.includes(id)).map(id => PRODUCT_NAMES[id]).join(' + ')
+const toolsOf = (ids: string[]) => productIds.value.every(id => ids.includes(id)) ? t('licenseAllTools') : productIds.value.filter(id => ids.includes(id)).map(id => productNames.value[id]).join(' + ')
 // In plain words: active (until when), ended, or turned off
 const stateOf = (l: Record<string, any>) => l.status === 'revoked' ? t('licenseStatus_revoked')
     : l.expired ? t('licenseExpired') : l.expiresAt ? t('licenseUntil', { date: date(l.expiresAt) }) : t('licenseActiveNoEnd')
 
-const PRODUCT_CHOICES = ['prospect,scaffold,sentinel', 'scaffold', 'prospect', 'sentinel', 'prospect,scaffold', 'scaffold,sentinel', 'prospect,sentinel']
+// The sets of tools a key can open (sorted ids, like editValue): all the tools first, then one tool, two, three; with many
+// tools (over 5), only all of them, each one alone, and the sets the keys already have
+const PRODUCT_CHOICES = computed(() => {
+    const ids = productIds.value
+    const all = ids.length
+    const sets = all <= 5
+        ? Array.from({ length: 2 ** all - 1 }, (_, i) => ids.filter((_, bit) => (i + 1) & (1 << bit)))
+        : [ids, ...ids.map(id => [id]), ...licenses.value.map(l => l.products as string[])]
+    const values = sets.sort((a, b) => (a.length === all ? -1 : b.length === all ? 1 : a.length - b.length)).map(set => [...set].sort().join(','))
+    return [...new Set(values)]
+})
 const columns = computed(() => [
     { key: 'email', label: t('licensePerson'), disabled: true, mobile: 'plain', formatter: (l: Record<string, any>) => l.name ? `${l.name} · ${l.email}` : l.email },
     {
         key: 'products', label: t('licenseProducts'), type: 'select', mobile: 'plain', formatter: (l: Record<string, any>) => toolsOf(l.products),
-        editValue: (l: Record<string, any>) => [...l.products].sort().join(','), options: PRODUCT_CHOICES.map(value => ({ value, label: toolsOf(value.split(',')) })),
+        editValue: (l: Record<string, any>) => [...l.products].sort().join(','), options: PRODUCT_CHOICES.value.map(value => ({ value, label: toolsOf(value.split(',')) })),
     },
     { key: 'kind', label: t('licenseKind'), disabled: true, mobile: 'tag', formatter: (l: Record<string, any>) => t(`licenseKind_${l.kind}`) },
     {
@@ -110,9 +120,9 @@ const renew = async (item: Record<string, any>) => {
 const editVersion = async () => {
     const res = await fetchVersions()
     if (!res.success) return showFailure(t('saveFailed'))
-    const tool = await showChoice(t('licenseMinVersionPick'), LICENSE_PRODUCTS.map(id => ({ value: id, label: `${PRODUCT_NAMES[id]} · ${res.versions[id]}` })))
+    const tool = await showChoice(t('licenseMinVersionPick'), productIds.value.map(id => ({ value: id, label: `${productNames.value[id]} · ${res.versions[id]}` })))
     if (!tool) return
-    const version = await showPrompt(t('licenseMinVersionAsk', { tool: PRODUCT_NAMES[tool as string] ?? '' }), String(res.versions[tool as string] ?? ''))
+    const version = await showPrompt(t('licenseMinVersionAsk', { tool: productNames.value[tool as string] ?? '' }), String(res.versions[tool as string] ?? ''))
     if (!version) return
     const saved = await setVersion(tool as string, String(version).trim())
     saved.success ? showSuccess(t('licenseMinVersionSaved')) : showFailure(t(saved.error || 'saveFailed'))

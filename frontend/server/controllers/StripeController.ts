@@ -16,6 +16,9 @@ import type { H3Event } from 'h3'
  *   GET  /api/stripe/subscription-result?type=success|cancel         HTML page closing the popup
  * Validation and Stripe calls: server/helpers/StripeHelper.ts, result pages: server/templates/StripePages.ts.
  */
+// Subscription pages created per IP (each one is a call to Stripe)
+const SUBSCRIPTION_LIMIT = { max: 20, windowSeconds: 60 * 60, lockSeconds: 60 * 60 }
+
 const resultType = (event: H3Event) => (RequestHelper.query(event, 'type') === 'cancel' ? 'cancel' : 'success')
 
 // A paid session of a payment link saved on its document; with the automatic debit chosen, its card is kept for the next steps
@@ -80,6 +83,10 @@ export default class StripeController extends Controller {
 
     // Monthly subscription: creates the Stripe page and returns its address
     async createSubscription(event: H3Event) {
+        const keys = [`stripe-subscription:${RequestHelper.ip(event)}`]
+        const limit = await RateLimitHelper.check(keys)
+        if (limit.locked) return ResponseHelper.tooManyRequests(event, 'tooManyAttempts', limit.retryAfter)
+        await RateLimitHelper.fail(keys, SUBSCRIPTION_LIMIT)
         const data = StripeHelper.validateSubscription((await this.body(event)) as Parameters<typeof StripeHelper.validateSubscription>[0])
         const frontend = useRuntimeConfig().public.frontendDomain
         const session = await StripeHelper.createSubscription({
@@ -104,7 +111,7 @@ export default class StripeController extends Controller {
         const stripeEvent = StripeHelper.verifyWebhook((await readRawBody(event, 'utf8')) ?? '', getHeader(event, 'stripe-signature') ?? '')
         if (['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(stripeEvent.type))
             await saveLinkPayment(stripeEvent.data.object as Stripe.Checkout.Session)
-        // Licences of the DC tools: key after the first payment, end of access following the subscription (LicenseStripe.ts)
+        // Licences of the DC tools: key once the first payment is paid, end of access following the subscription (LicenseStripe.ts)
         await LicenseStripe.handle(stripeEvent)
         return ResponseHelper.success(event, { received: true })
     }

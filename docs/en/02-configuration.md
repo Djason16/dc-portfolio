@@ -5,7 +5,7 @@
 **DOC-02** &nbsp;·&nbsp; [← Documentation](README.md)
 
 Settings live in `.env` files inside `frontend/`: only what is **secret or technical** (database, Stripe, SMTP, admin account, bank details, address of the site).
-Your name, contact, legal details and social links are edited in **admin → My info** (stored in the database, applied at once).
+Your name, contact, legal details and social links (an ordered list: LinkedIn, YouTube, Vimeo… or any other site) are edited in **admin → My info** (stored in the database, applied at once).
 The texts seen by visitors (home, legal pages, cookie banner, SEO, Pay me page, and the texts printed on the quotes, invoices and contracts) are edited in **admin → Site texts**: the site changes at once, without a new build.
 
 Start from the example:
@@ -45,6 +45,11 @@ cp .env.example .env
 | `STRIPE_WEBHOOK_SECRET` | Signing secret of the webhook `/api/stripe/webhook` (`whsec_...`): locally given by `stripe listen`, online by the Dashboard |
 | **Bank** (server only, never sent to the browser) | |
 | `BANK_IBAN`, `BANK_BIC` | Printed on invoices and contracts |
+| **E-invoicing** (Super PDP, server only) | Admin → E-invoicing. The API is off by default (manual mode: nothing sent nor billed) |
+| `SUPERPDP_API_URL` | `https://api.superpdp.tech` (one address for sandbox and production) |
+| `SUPERPDP_ENV` | `sandbox` (default, local and qualif) or `production` (online): nothing is sent unless the company of the credentials is in this environment |
+| `SUPERPDP_CLIENT_ID`, `SUPERPDP_CLIENT_SECRET` | OAuth2 application of the Super PDP account (a sandbox company such as « Burger Queen », or the real one). Empty: manual mode only |
+| `SUPERPDP_MOCK` | `true`: a fake platform in memory (tests without account); empty online |
 | **Translation** (MyMemory, free, no key) | |
 | `MYMEMORY_EMAIL` | Optional. Empty: about 5,000 translated characters a day; an email: about 50,000 |
 | `GOOGLE_MAPS_API_KEY` | Google Geocoding API key (server side): the region of an address outside France, shown on the site instead of the town. In France: the public service geo.api.gouv.fr. Empty: the country only |

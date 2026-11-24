@@ -1,6 +1,7 @@
 import { AreaHelper } from './AreaHelper'
 import { DatabaseHelper } from '../utils/DatabaseHelper'
 import { areaSource, isTicked, townOf } from '~/utils/address'
+import { LEGACY_SOCIAL_KEYS } from '~/utils/socialNetworks'
 
 /*
  * Information about the site owner, edited from the admin (Settings) and stored in dc_settings:
@@ -9,6 +10,7 @@ import { areaSource, isTicked, townOf } from '~/utils/address'
  *
  *   const settings = await SettingsHelper.all()     { name: 'Djason CHERY', email: '...', ... }
  *   await SettingsHelper.save({ phone: '+33...' })  unknown keys are ignored
+ *   await SettingsHelper.migrateSocialLinks()       once at start: the old fixed social fields become the list socialLinks
  */
 
 // Every setting, with its empty default (the same list as stores/siteSettings.js)
@@ -19,7 +21,8 @@ export const SETTING_KEYS = [
     'area',
     // '1': the address (town, country) is the one of the billing address (utils/address.js)
     'sameAddress',
-    'linkedin', 'github', 'malt', 'instagram', 'tiktok', 'facebook', 'whatsapp',
+    // Social links: ordered list in JSON ([{ network, url, label? }], utils/socialNetworks.ts), checked by SettingsController
+    'socialLinks',
     // Photo of "About me" uploaded from the admin (/upload/images/...), empty: public/images/about-me.webp
     'aboutPhoto',
     // Consumer mediator (required with consumers, art. L.612-1 and R.616-1 of the French Consumer Code): printed in the terms
@@ -64,5 +67,20 @@ export const SettingsHelper = {
             await DatabaseHelper.execute('INSERT INTO dc_settings (`key`, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)',
                 [key, String(changes[key] ?? '').trim()])
         return keys
+    },
+
+    /** The fixed social fields of before (linkedin, github...) moved into the list socialLinks, in the order of the footer; once. */
+    async migrateSocialLinks() {
+        const placeholders = LEGACY_SOCIAL_KEYS.map(() => '?').join(', ')
+        const rows = await DatabaseHelper.fetchAll(`SELECT \`key\`, value FROM dc_settings WHERE \`key\` IN (${placeholders}, 'socialLinks')`, LEGACY_SOCIAL_KEYS)
+        const saved: Record<string, string> = Object.fromEntries(rows.map(row => [row.key, String(row.value ?? '').trim()]))
+        if (!LEGACY_SOCIAL_KEYS.some(key => key in saved)) return 0
+        // A list already there (saved from the admin) is never replaced: the old rows are only cleared
+        if (!('socialLinks' in saved)) {
+            const links = LEGACY_SOCIAL_KEYS.filter(key => saved[key]).map(key => ({ network: key, url: saved[key] }))
+            await DatabaseHelper.execute('INSERT INTO dc_settings (`key`, value) VALUES (?, ?)', ['socialLinks', JSON.stringify(links)])
+        }
+        await DatabaseHelper.execute(`DELETE FROM dc_settings WHERE \`key\` IN (${placeholders})`, LEGACY_SOCIAL_KEYS)
+        return LEGACY_SOCIAL_KEYS.filter(key => saved[key]).length
     },
 }
